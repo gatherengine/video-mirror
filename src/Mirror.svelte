@@ -1,0 +1,361 @@
+<script>
+  import { onMount, createEventDispatcher } from "svelte";
+  import { spring } from "svelte/motion";
+
+  import MediaDevices from "media-devices";
+  import { mediaDevices } from "./stores/mediaDevices.js";
+  // import {
+  //   localTracksStore,
+  //   localAudioLevel,
+  //   requestedTracks,
+  // } from "./stores/LocalTracksStore.js";
+
+  import { localVideoTrack } from "./stores/localVideoTrack";
+  import { localAudioTrack } from "./stores/localAudioTrack";
+  import { localStream } from "./stores/localStream";
+
+  import Video from "./media/Video.svelte";
+  import Audio from "./media/Audio.svelte";
+
+  import { audioRequested, videoRequested } from "./stores/mediaRequested";
+  import { localAudioLevel } from "./stores/localAudioLevel";
+
+  import ContinueButton from "./ContinueButton.svelte";
+  // import DeviceSelector from "./DeviceSelector";
+
+  import videoEnabledIcon from "./images/video-enabled.svg";
+  import videoDisabledIcon from "./images/video-disabled.svg";
+  import audioEnabledIcon from "./images/audio-enabled.svg";
+  import audioDisabledIcon from "./images/audio-disabled.svg";
+  import settingsIcon from "./images/settings.svg";
+
+  const AUDIO_LEVEL_MINIMUM = 0.0;
+  const advancedSettingsSupported = true;
+
+  const dispatch = createEventDispatcher();
+
+  // Local state
+  let requestBlocked = false;
+  let advancedSettings = false;
+  let hasPermission = false;
+
+  // Animation springs
+  let audioLevelSpring = spring(0, {
+    stiffness: 0.3,
+    damping: 0.8,
+  });
+
+  let videoPositionSpring = spring(0, {
+    stiffness: 0.5,
+    damping: 0.3,
+  });
+
+  const shakeInactiveVideo = () => {
+    videoPositionSpring.set(10);
+    setTimeout(() => videoPositionSpring.set(0), 100);
+  };
+
+  const toggleAudioRequested = () => ($audioRequested = !$audioRequested);
+
+  const toggleVideoRequested = () => ($videoRequested = !$videoRequested);
+
+  const toggleAdvancedSettings = () => (advancedSettings = !advancedSettings);
+
+  // const audioLevelChanged = (level) => audioLevelSpring.set(level)
+  $: audioLevelSpring.set($localAudioLevel);
+
+  function setRequestBlocked(blocked) {
+    if (blocked) {
+      if (requestBlocked) {
+        // Visual feedback already indicates red,
+        // so shake it to emphasize error
+        shakeInactiveVideo();
+      }
+      requestBlocked = true;
+    } else {
+      requestBlocked = false;
+    }
+  }
+
+  function devicesHaveLabels(devices) {
+    return devices.some((device) => device.label);
+  }
+
+  async function requestMediaPermission({ audio = true, video = true } = {}) {
+    try {
+      return await MediaDevices.getUserMedia({ audio, video });
+    } catch (err) {
+      if (audio && video) {
+        return await requestMediaPermission({ audio: true, video: false });
+      } else if (audio) {
+        return await requestMediaPermission({ video: true, audio: false });
+      } else {
+        return null;
+      }
+    }
+  }
+  /**
+   * localTracks, audioRequested, videoRequested
+   * @returns hasPermission, blocked(?), tracks
+   */
+  async function requestPermissions() {
+    const response = await requestMediaPermission();
+
+    if (response) {
+      hasPermission = true;
+      response.getTracks().forEach((track) => {
+        // prettier-ignore
+        switch(track.kind) {
+          case 'audio': $localAudioTrack = track; break;
+          case 'video': $localVideoTrack = track; break;
+        }
+      });
+    } else {
+      // Visually indicate that the request was blocked if we don't have permission
+      setRequestBlocked(true);
+    }
+
+    // After asking for permission, it's possible the browser will now allow us
+    // to see more information about the devices available to the user, so requery
+    // await deviceList.requery();
+  }
+
+  const handleDone = () => {
+    dispatch("done");
+  };
+
+  const handleHelp = () => {
+    alert("TODO");
+  };
+
+  $: if (!hasPermission && devicesHaveLabels($mediaDevices)) {
+    requestPermissions();
+  }
+
+  // $: console.log('localAudioTrack', $localAudioTrack);
+  // onMount(async () => {
+  //   const autoPermit = devicesHaveLabels($mediaDevices);
+  //   console.log("autoPermit", autoPermit, $mediaDevices);
+  //   if (autoPermit) {
+  //     requestPermissions();
+  //   }
+  // });
+</script>
+
+<div class="mirror">
+  {#if hasPermission}
+    <div class="video-box">
+      <Video stream={$localStream} mirror={true} />
+      <div class="video-stack overlay">
+        {#if !$audioRequested && !$videoRequested}
+          <div class="message">Join with cam and mic off</div>
+        {:else if !$videoRequested}
+          <div class="message">Join with cam off</div>
+        {:else if !$audioRequested}
+          <div class="message">Join with mic off</div>
+        {:else}
+          <div />
+        {/if}
+        <div class="button-tray">
+          <button
+            on:click={toggleVideoRequested}
+            class:track-disabled={!$videoRequested}>
+            {#if $videoRequested}
+              <img src={videoEnabledIcon} width="32" alt="Video Enabled" />
+            {:else}
+              <img src={videoDisabledIcon} width="32" alt="Video Disabled" />
+            {/if}
+          </button>
+          <button
+            on:click={toggleAudioRequested}
+            class:audio-level={$audioRequested &&
+              $audioLevelSpring > AUDIO_LEVEL_MINIMUM}
+            class:track-disabled={!$audioRequested}
+            style="--audio-level:{($audioLevelSpring * 100).toFixed(2) +
+              '%'}">
+            {#if $audioRequested}
+              <img src={audioEnabledIcon} width="32" alt="Audio Enabled" />
+            {:else}
+              <img src={audioDisabledIcon} width="32" alt="Audio Disabled" />
+            {/if}
+          </button>
+          {#if advancedSettingsSupported}
+            <button class="corner" on:click={toggleAdvancedSettings}
+              ><img src={settingsIcon} width="32" alt="Settings" /></button>
+          {/if}
+        </div>
+      </div>
+    </div>
+    <ContinueButton on:click={handleDone}>Continue</ContinueButton>
+    {#if advancedSettings}
+      <div class="advanced-settings">
+        advanced
+        <!-- <DeviceSelector
+          selected={selectedDevices}
+          on:changed={(_) => {
+            requestPermissions();
+          }} /> -->
+      </div>
+    {/if}
+  {:else}
+    <div
+      class="video-stack filled"
+      class:blocked={requestBlocked}
+      style="transform: translate({$videoPositionSpring}px, 0)">
+      <div class="image">
+        <img src={videoDisabledIcon} width="75" alt="Video Disabled" />
+      </div>
+      <div class="message">
+        {#if requestBlocked}
+          Cam and mic are blocked
+          <button on:click={handleHelp}>(Need help?)</button>
+        {:else}Cam and mic are not active{/if}
+      </div>
+    </div>
+
+    <p>
+      For others to see and hear you, your browser will request access to your
+      cam and mic.
+    </p>
+
+    <ContinueButton on:click={requestPermissions}>
+      {#if requestBlocked}Try Again{:else}Request Permissions{/if}
+    </ContinueButton>
+  {/if}
+</div>
+
+<style>
+  .mirror {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 500px;
+  }
+  p {
+    width: 375px;
+    text-align: center;
+  }
+  .video-box {
+    display: flex;
+    justify-content: center;
+
+    overflow: hidden;
+    border-radius: 10px;
+    width: 375px;
+    height: 225px;
+
+    background-color: #555;
+  }
+  .video-stack {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+
+    border-radius: 10px;
+    width: 375px;
+    height: 225px;
+  }
+  .video-stack.overlay {
+    position: absolute;
+  }
+  .video-stack.filled {
+    background-color: #555;
+  }
+  .video-stack.blocked {
+    background-color: #f55;
+  }
+  .video-stack .image {
+    display: flex;
+    justify-content: center;
+    flex-grow: 1;
+    margin-top: 15px;
+  }
+  .video-stack .message {
+    color: #eee;
+    background-color: rgba(33, 33, 33, 0.5);
+    border-radius: 10px;
+    padding: 8px 15px;
+    margin: 8px;
+    text-align: center;
+
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+  }
+  .video-stack .message button {
+    border: none;
+    background: none;
+    text-decoration: underline;
+    cursor: pointer;
+    color: white;
+  }
+  .video-stack .button-tray {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+  .button-tray button {
+    display: flex;
+
+    color: white;
+    background-color: rgba(33, 33, 33, 0.5);
+    border: none;
+    border-radius: 8px;
+    margin: 8px;
+
+    font-size: 18px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    padding: 8px 15px;
+  }
+  .button-tray button img {
+    z-index: 1;
+  }
+  .button-tray button.track-disabled {
+    background-color: rgba(255, 85, 85, 0.7);
+  }
+  .button-tray button:hover {
+    background-color: rgba(85, 85, 85, 0.7);
+  }
+  .button-tray button.track-disabled:hover {
+    background-color: rgba(255, 115, 115, 0.7);
+  }
+  .button-tray button.corner {
+    position: absolute;
+    right: 10px;
+  }
+  .video-stack.blocked .message {
+    background-color: #822;
+  }
+  /* button:active {
+    transform: translateY(1px);
+  }
+  button.main-action {
+    color: white;
+    background-color: rgba(70, 130, 180, 1);
+    border: 0;
+    border-radius: 8px;
+    margin-top: 15px;
+    padding: 8px 15px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  button.main-action:hover {
+    background-color: rgba(103, 152, 193, 1);
+  } */
+  .audio-level {
+    position: relative;
+  }
+  .audio-level:before {
+    content: " ";
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: var(--audio-level);
+    max-height: 100%;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(70, 180, 74, 0.7);
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+  }
+</style>
