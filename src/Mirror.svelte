@@ -1,21 +1,15 @@
 <script>
-  import { onMount, createEventDispatcher } from "svelte";
+  import { createEventDispatcher } from "svelte";
   import { spring } from "svelte/motion";
 
   import MediaDevices from "media-devices";
   import { mediaDevices } from "./stores/mediaDevices.js";
-  // import {
-  //   localTracksStore,
-  //   localAudioLevel,
-  //   requestedTracks,
-  // } from "./stores/LocalTracksStore.js";
 
   import { localVideoTrack } from "./stores/localVideoTrack";
   import { localAudioTrack } from "./stores/localAudioTrack";
   import { localStream } from "./stores/localStream";
 
-  import Video from "./media/Video.svelte";
-  import Audio from "./media/Audio.svelte";
+  import Video from "./Video.svelte";
 
   import { audioRequested, videoRequested } from "./stores/mediaRequested";
   import { localAudioLevel } from "./stores/localAudioLevel";
@@ -30,7 +24,8 @@
   import settingsIcon from "./images/settings.svg";
 
   const AUDIO_LEVEL_MINIMUM = 0.0;
-  const advancedSettingsSupported = true;
+  // TODO: make advanced settings work again
+  const advancedSettingsSupported = false;
 
   const dispatch = createEventDispatcher();
 
@@ -131,15 +126,6 @@
   $: if (!hasPermission && devicesHaveLabels($mediaDevices)) {
     requestPermissions();
   }
-
-  // $: console.log('localAudioTrack', $localAudioTrack);
-  // onMount(async () => {
-  //   const autoPermit = devicesHaveLabels($mediaDevices);
-  //   console.log("autoPermit", autoPermit, $mediaDevices);
-  //   if (autoPermit) {
-  //     requestPermissions();
-  //   }
-  // });
 </script>
 
 <div class="mirror">
@@ -268,6 +254,7 @@
   .video-stack .image {
     display: flex;
     justify-content: center;
+    align-items: center;
     flex-grow: 1;
     margin-top: 15px;
   }
