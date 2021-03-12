@@ -6,7 +6,7 @@ let harkInstance;
 let audioVolume = 0;
 
 export const localAudioLevel = derived([localStream], ([$stream], set) => {
-  if ($stream) {
+  if ($stream && $stream.getAudioTracks().length) {
     harkInstance = hark($stream, { play: false });
 
     harkInstance.on("volume_change", (dBs, threshold) => {
