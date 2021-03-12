@@ -2,10 +2,24 @@
 
 Make it easy for web users to set up their mic & camera.
 
+<div style="display:flex;justify-content:space-around;">
+<img width="200" src="https://raw.githubusercontent.com/relm-us/video-mirror/main/images/step1.webp" alt="setup step 1">
+<img width="200" src="https://raw.githubusercontent.com/relm-us/video-mirror/main/images/step2.webp" alt="setup step 2">
+<img width="200" src="https://raw.githubusercontent.com/relm-us/video-mirror/main/images/step3.webp" alt="setup step 3">
+</div>
+
 ## Usage
 
+Here's an example usage in Svelte:
+
 ```
-import { Mirror } from 'video-mirror'
+<script>
+  import VideoMirror from "video-mirror";
+</script>
+
+<main>
+  <VideoMirror on:done={() => { console.log('setup complete!') } />
+</main>
 ```
 
 ## Consuming Svelte Components
