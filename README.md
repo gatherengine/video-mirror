@@ -10,7 +10,7 @@ Make it easy for web users to set up their mic & camera.
 
 ## Usage
 
-Here's an example usage in Svelte:
+Here's an example in Svelte:
 
 ```
 <script>
