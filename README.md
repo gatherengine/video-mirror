@@ -8,6 +8,24 @@ Make it easy for web users to set up their mic & camera.
 <img width="200" src="https://raw.githubusercontent.com/relm-us/video-mirror/main/images/step3.webp" alt="setup step 3">
 </div>
 
+## Features
+
+- Shows camera stream to help user assess camera setup & personal readiness to join video conference
+- Shows visual audio level to help user assess microphone setup
+- Allows user to disable camera if desired
+- Allows user to disable microphone if desired
+- Shows when permission to use cam/mic have not been given
+- Allows a user to request permissions by pressing a button
+- Autodetects when the user has previously given permissions & skips button press
+- Asks for camera & mic together in one dialog, but fails gracefully to one-at-a-time permission dialog if only one media device is available
+- Shows visual cue (light red background) when permission was denied
+- Shows visual cue (shaking) when permission was denied, and user is requesting permission again, but browser state will no longer allow permissions dialog to be shown
+- Works on Firefox, Chrome, Safari, Edge
+
+## TODO
+
+- Advanced device configuration (e.g. pick among multiple microphones, cameras, or speakers)
+
 ## Usage
 
 Here's an example in Svelte:
