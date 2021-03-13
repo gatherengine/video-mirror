@@ -11,9 +11,22 @@ Make it easy for web users to set up their mic & camera.
 
 ### Error States
 <div>
-<img width="200" src="https://raw.githubusercontent.com/relm-us/video-mirror/main/images/error1.webp" alt="setup step 3">
+<img width="200" src="https://raw.githubusercontent.com/relm-us/video-mirror/main/images/error1.webp" alt="error state 1">
 <img width="200" src="https://raw.githubusercontent.com/relm-us/video-mirror/main/images/error2.gif" alt="error state 2">
 </div>
+
+### Options
+<div>
+<img width="200" src="https://raw.githubusercontent.com/relm-us/video-mirror/main/images/option1.webp" alt="camera off">
+<img width="200" src="https://raw.githubusercontent.com/relm-us/video-mirror/main/images/option2.webp" alt="camera off">
+<img width="200" src="https://raw.githubusercontent.com/relm-us/video-mirror/main/images/option3.webp" alt="camera off">
+</div>
+
+### Volume Level
+<div>
+<img width="200" src="https://raw.githubusercontent.com/relm-us/video-mirror/main/images/whistle.gif" alt="whistle">
+</div>
+
 
 ## Features
 
