@@ -53,11 +53,14 @@ Here's an example in Svelte:
 
 ```
 <script>
-  import VideoMirror from "video-mirror";
+  import { VideoMirror } from "video-mirror";
 </script>
 
 <main>
-  <VideoMirror on:done={() => { console.log('setup complete!') } />
+  <VideoMirror on:done={({ detail }) => {
+    const { audio, video, stream, devices} = detail;
+    console.log('setup complete!', audio, video, stream, devices);
+  } />
 </main>
 ```
 

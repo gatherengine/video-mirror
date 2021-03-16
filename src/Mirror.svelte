@@ -116,12 +116,17 @@
   }
 
   const handleDone = () => {
-    dispatch("done");
+    dispatch("done", {
+      devices: $mediaDevices,
+      audio: $audioRequested ? $localAudioTrack : null,
+      video: $videoRequested ? $localVideoTrack : null,
+      stream: $localStream
+    });
   };
 
-  const handleHelp = () => {
-    alert("TODO");
-  };
+  // const handleHelp = () => {
+  //   alert("TODO");
+  // };
 
   $: if (!hasPermission && devicesHaveLabels($mediaDevices)) {
     requestPermissions();
@@ -157,8 +162,7 @@
             class:audio-level={$audioRequested &&
               $audioLevelSpring > AUDIO_LEVEL_MINIMUM}
             class:track-disabled={!$audioRequested}
-            style="--audio-level:{($audioLevelSpring * 100).toFixed(2) +
-              '%'}">
+            style="--audio-level:{($audioLevelSpring * 100).toFixed(2) + '%'}">
             {#if $audioRequested}
               <img src={audioEnabledIcon} width="32" alt="Audio Enabled" />
             {:else}
@@ -194,7 +198,7 @@
       <div class="message">
         {#if requestBlocked}
           Cam and mic are blocked
-          <button on:click={handleHelp}>(Need help?)</button>
+          <!-- <button on:click={handleHelp}>(Need help?)</button> -->
         {:else}Cam and mic are not active{/if}
       </div>
     </div>

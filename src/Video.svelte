@@ -1,18 +1,24 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, afterUpdate } from "svelte";
 
-  export let id = 'video';
+  export let id = "video";
   export let stream;
   export let autoPlay = true;
   export let fullscreen = false;
   // iOS needs this so the video doesn't automatically play full screen
   export let playsInline = true;
   export let mirror = false;
+  export let muted = true;
+  export let round = false;
 
   let videoElement;
+  let cachedStream;
 
-  onMount(() => {
-    videoElement.srcObject = stream;
+  afterUpdate(() => {
+    if (cachedStream !== stream) {
+      videoElement.srcObject = stream;
+      cachedStream = stream;
+    }
   });
 </script>
 
@@ -29,7 +35,9 @@
   bind:this={videoElement}
   class:mirror
   class:fullscreen
+  class:round
   {id}
+  muted={muted ? true : undefined}
   autoPlay={autoPlay ? true : undefined}
   playsInline={playsInline ? true : undefined}
   disablePictureInPicture="" />
@@ -46,5 +54,8 @@
   .fullscreen {
     width: 100%;
     height: 100%;
+  }
+  .round {
+    border-radius: 100%;
   }
 </style>
