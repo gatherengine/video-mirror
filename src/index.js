@@ -1,5 +1,6 @@
 export { default as VideoMirror } from "./Mirror.svelte";
 export { default as Video } from "./Video.svelte";
+export { default as Audio } from "./Audio.svelte";
 export { mediaDevices } from "./stores/mediaDevices";
 export { localAudioLevel } from "./stores/localAudioLevel";
 export { localAudioTrack } from "./stores/localAudioTrack";
