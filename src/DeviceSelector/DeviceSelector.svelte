@@ -10,20 +10,20 @@
     selectedDevices,
   } from "../DeviceListStore.js";
 
-  import audioIcon from "./images/audio-enabled.svg";
-  import videoIcon from "./images/video-enabled.svg";
-  import speakerIcon from "./images/speaker-icon.svg";
-
-  // export let selected = {}
+  import {
+    IconAudioEnabled,
+    IconVideoEnabled,
+    IconSoundSpeaker,
+  } from "../icons";
 
   // DeviceSelector sends a 'selected' event when user selects anything
   const dispatch = createEventDispatcher();
 
   const kinds = ["videoinput", "audioinput", "audiooutput"];
   const icons = {
-    videoinput: videoIcon,
-    audioinput: audioIcon,
-    audiooutput: speakerIcon,
+    videoinput: IconVideoEnabled,
+    audioinput: IconAudioEnabled,
+    audiooutput: IconSoundSpeaker,
   };
 
   function selected(option, kind) {
@@ -60,6 +60,5 @@
     onSelect={(option) => {
       selected(option, kind);
     }}
-    icon={icons[kind]}
-  />
+    icon={icons[kind]} />
 {/each}

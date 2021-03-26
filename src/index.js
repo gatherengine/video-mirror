@@ -7,3 +7,5 @@ export { localAudioTrack } from "./stores/localAudioTrack";
 export { localVideoTrack } from "./stores/localVideoTrack";
 export { localStream } from "./stores/localStream";
 export { audioRequested, videoRequested } from "./stores/mediaRequested";
+
+export * from "./icons";

@@ -69,16 +69,14 @@
   class="select"
   tabindex="0"
   on:keydown={handleKeypress}
-  on:blur={cancelPopup}
->
+  on:blur={cancelPopup}>
   <div
     bind:this={selectRowEl}
     class="select-row"
     class:open={popupVisible}
-    on:click={togglePopup}
-  >
+    on:click={togglePopup}>
     {#if icon}
-      <div class="icon"><img src={icon} width="24" alt="Icon" /></div>
+      <div class="icon"><svelte:component this={icon} /></div>
     {/if}
     <div class="selected">{selectedOption ? selectedOption.label : ""}</div>
     <div class="down-arrow" />
@@ -91,8 +89,7 @@
           class:hover={hoverIndex === i}
           data-value={option.value}
           on:click={() => makeSelection(option)}
-          on:mouseenter={() => (hoverIndex = i)}
-        >
+          on:mouseenter={() => (hoverIndex = i)}>
           {option.label}
         </div>
       {/each}
@@ -135,6 +132,8 @@
   }
 
   .icon {
+    width: 24px;
+    height: 24px;
     margin-right: 8px;
     filter: brightness(25%) saturate(100%);
   }

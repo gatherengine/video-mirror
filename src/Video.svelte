@@ -33,6 +33,7 @@
 <!-- svelte-ignore a11y-media-has-caption -->
 <video
   bind:this={videoElement}
+  class={$$props.class}
   class:mirror
   class:fullscreen
   class:round

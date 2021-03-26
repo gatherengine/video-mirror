@@ -1,5 +1,5 @@
 <script>
-  import VideoMirror from "video-mirror";
+  import { VideoMirror } from "video-mirror";
 </script>
 
 <main>
@@ -9,7 +9,8 @@
 <style>
   main {
     display: flex;
-		flex-direction: column;
+    flex-direction: column;
     justify-content: center;
+    color: red;
   }
 </style>

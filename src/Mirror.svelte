@@ -17,11 +17,9 @@
   import ContinueButton from "./ContinueButton.svelte";
   // import DeviceSelector from "./DeviceSelector";
 
-  import videoEnabledIcon from "./images/video-enabled.svg";
-  import videoDisabledIcon from "./images/video-disabled.svg";
-  import audioEnabledIcon from "./images/audio-enabled.svg";
-  import audioDisabledIcon from "./images/audio-disabled.svg";
-  import settingsIcon from "./images/settings.svg";
+  import VideoIcon from "./VideoIcon.svelte";
+  import AudioIcon from "./AudioIcon.svelte";
+  import { IconSettings, IconVideoDisabled } from "./icons";
 
   const AUDIO_LEVEL_MINIMUM = 0.0;
   // TODO: make advanced settings work again
@@ -120,7 +118,7 @@
       devices: $mediaDevices,
       audio: $audioRequested ? $localAudioTrack : null,
       video: $videoRequested ? $localVideoTrack : null,
-      stream: $localStream
+      stream: $localStream,
     });
   };
 
@@ -151,11 +149,7 @@
           <button
             on:click={toggleVideoRequested}
             class:track-disabled={!$videoRequested}>
-            {#if $videoRequested}
-              <img src={videoEnabledIcon} width="32" alt="Video Enabled" />
-            {:else}
-              <img src={videoDisabledIcon} width="32" alt="Video Disabled" />
-            {/if}
+            <icon><VideoIcon enabled={$videoRequested} /></icon>
           </button>
           <button
             on:click={toggleAudioRequested}
@@ -163,15 +157,12 @@
               $audioLevelSpring > AUDIO_LEVEL_MINIMUM}
             class:track-disabled={!$audioRequested}
             style="--audio-level:{($audioLevelSpring * 100).toFixed(2) + '%'}">
-            {#if $audioRequested}
-              <img src={audioEnabledIcon} width="32" alt="Audio Enabled" />
-            {:else}
-              <img src={audioDisabledIcon} width="32" alt="Audio Disabled" />
-            {/if}
+            <icon><AudioIcon enabled={$audioRequested} /></icon>
           </button>
           {#if advancedSettingsSupported}
-            <button class="corner" on:click={toggleAdvancedSettings}
-              ><img src={settingsIcon} width="32" alt="Settings" /></button>
+            <button class="corner" on:click={toggleAdvancedSettings}>
+              <icon><IconSettings /></icon>
+            </button>
           {/if}
         </div>
       </div>
@@ -193,7 +184,7 @@
       class:blocked={requestBlocked}
       style="transform: translate({$videoPositionSpring}px, 0)">
       <div class="image">
-        <img src={videoDisabledIcon} width="75" alt="Video Disabled" />
+        <icon style="--size:75px"><IconVideoDisabled /></icon>
       </div>
       <div class="message">
         {#if requestBlocked}
@@ -348,5 +339,12 @@
     background-color: rgba(70, 180, 74, 0.7);
     border-bottom-right-radius: 8px;
     border-bottom-left-radius: 8px;
+  }
+
+  icon {
+    display: block;
+    width: var(--size, 32px);
+    height: var(--size, 32px);
+    color: white;
   }
 </style>
