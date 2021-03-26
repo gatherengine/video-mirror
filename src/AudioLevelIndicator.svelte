@@ -7,11 +7,13 @@
     stiffness: 0.3,
     damping: 0.8,
   });
-  
+
   $: audioLevelSpring.set($localAudioLevel);
 </script>
 
-<indicator style="--audio-level:{($audioLevelSpring * 100).toFixed(2) + '%'}">
+<indicator
+  style="--audio-level:{($audioLevelSpring * 100).toFixed(2) + '%'}"
+  class={$$props.class}>
   <slot />
 </indicator>
 
