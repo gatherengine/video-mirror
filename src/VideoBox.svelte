@@ -18,7 +18,7 @@
 </script>
 
 <container class:opaque={!opaque}>
-  <Video stream={$localStream} mirror={true} />
+  <Video stream={$localStream} mirror={true} class="rounded-video" />
   <div
     class:opaque
     class:blocked
@@ -38,6 +38,11 @@
     width: 375px;
     height: 225px;
   }
+
+  :global(.rounded-video) {
+    border-radius: 10px;
+  }
+
   .video-stack {
     display: flex;
     flex-direction: column;

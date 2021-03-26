@@ -1,6 +1,5 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import { spring } from "svelte/motion";
 
   import MediaDevices from "media-devices";
   import { mediaDevices } from "./stores/mediaDevices.js";
@@ -10,9 +9,9 @@
   import { localStream } from "./stores/localStream";
 
   import { audioRequested, videoRequested } from "./stores/mediaRequested";
-  import { localAudioLevel } from "./stores/localAudioLevel";
 
   import VideoBox from "./VideoBox.svelte";
+  import AudioLevelIndicator from "./AudioLevelIndicator.svelte";
   import ContinueButton from "./ContinueButton.svelte";
   // import DeviceSelector from "./DeviceSelector";
 
@@ -20,7 +19,6 @@
   import AudioIcon from "./AudioIcon.svelte";
   import { IconSettings, IconVideoDisabled } from "./icons";
 
-  const AUDIO_LEVEL_MINIMUM = 0.0;
   // TODO: make advanced settings work again
   const advancedSettingsSupported = false;
 
@@ -33,20 +31,11 @@
 
   let videoBox = null;
 
-  // Animation springs
-  let audioLevelSpring = spring(0, {
-    stiffness: 0.3,
-    damping: 0.8,
-  });
-
   const toggleAudioRequested = () => ($audioRequested = !$audioRequested);
 
   const toggleVideoRequested = () => ($videoRequested = !$videoRequested);
 
   const toggleAdvancedSettings = () => (advancedSettings = !advancedSettings);
-
-  // const audioLevelChanged = (level) => audioLevelSpring.set(level)
-  $: audioLevelSpring.set($localAudioLevel);
 
   function setRequestBlocked(blocked) {
     if (blocked) {
@@ -141,12 +130,20 @@
           <icon><VideoIcon enabled={$videoRequested} /></icon>
         </button>
         <button
-          on:click={toggleAudioRequested}
-          class:audio-level={$audioRequested &&
-            $audioLevelSpring > AUDIO_LEVEL_MINIMUM}
+          class="audio-level-button"
           class:track-disabled={!$audioRequested}
-          style="--audio-level:{($audioLevelSpring * 100).toFixed(2) + '%'}">
-          <icon><AudioIcon enabled={$audioRequested} /></icon>
+          on:click={toggleAudioRequested}>
+          {#if $audioRequested}
+            <AudioLevelIndicator>
+              <icon class="audio-level-icon">
+                <AudioIcon enabled={$audioRequested} />
+              </icon>
+            </AudioLevelIndicator>
+          {:else}
+            <icon class="audio-level-icon">
+              <AudioIcon enabled={$audioRequested} />
+            </icon>
+          {/if}
         </button>
         {#if advancedSettingsSupported}
           <button class="corner" on:click={toggleAdvancedSettings}>
@@ -219,13 +216,13 @@
 
     font-family: Verdana, Geneva, Tahoma, sans-serif;
   }
-  .blocked-message button {
+  /* .blocked-message button {
     border: none;
     background: none;
     text-decoration: underline;
     cursor: pointer;
     color: white;
-  }
+  } */
   .button-bar {
     display: flex;
     flex-direction: row;
@@ -257,21 +254,12 @@
     position: absolute;
     right: 10px;
   }
-  .audio-level {
-    position: relative;
+
+  .audio-level-button {
+    padding: 0 !important;
   }
-  .audio-level:before {
-    content: " ";
-    display: block;
-    position: absolute;
-    width: 100%;
-    height: var(--audio-level);
-    max-height: 100%;
-    bottom: 0;
-    left: 0;
-    background-color: rgba(70, 180, 74, 0.7);
-    border-bottom-right-radius: 8px;
-    border-bottom-left-radius: 8px;
+  .audio-level-icon {
+    margin: 8px 15px;
   }
 
   icon {
