@@ -9,11 +9,10 @@
   import { localAudioTrack } from "./stores/localAudioTrack";
   import { localStream } from "./stores/localStream";
 
-  import Video from "./Video.svelte";
-
   import { audioRequested, videoRequested } from "./stores/mediaRequested";
   import { localAudioLevel } from "./stores/localAudioLevel";
 
+  import VideoBox from "./VideoBox.svelte";
   import ContinueButton from "./ContinueButton.svelte";
   // import DeviceSelector from "./DeviceSelector";
 
@@ -32,21 +31,13 @@
   let advancedSettings = false;
   let hasPermission = false;
 
+  let videoBox = null;
+
   // Animation springs
   let audioLevelSpring = spring(0, {
     stiffness: 0.3,
     damping: 0.8,
   });
-
-  let videoPositionSpring = spring(0, {
-    stiffness: 0.5,
-    damping: 0.3,
-  });
-
-  const shakeInactiveVideo = () => {
-    videoPositionSpring.set(10);
-    setTimeout(() => videoPositionSpring.set(0), 100);
-  };
 
   const toggleAudioRequested = () => ($audioRequested = !$audioRequested);
 
@@ -62,7 +53,7 @@
       if (requestBlocked) {
         // Visual feedback already indicates red,
         // so shake it to emphasize error
-        shakeInactiveVideo();
+        videoBox.shake();
       }
       requestBlocked = true;
     } else {
@@ -131,42 +122,39 @@
   }
 </script>
 
-<div class="mirror">
+<mirror>
   {#if hasPermission}
-    <div class="video-box">
-      <Video stream={$localStream} mirror={true} />
-      <div class="video-stack overlay">
-        {#if !$audioRequested && !$videoRequested}
-          <div class="message">Join with cam and mic off</div>
-        {:else if !$videoRequested}
-          <div class="message">Join with cam off</div>
-        {:else if !$audioRequested}
-          <div class="message">Join with mic off</div>
-        {:else}
-          <div />
+    <VideoBox bind:this={videoBox}>
+      {#if !$audioRequested && !$videoRequested}
+        <div class="message highlight">Join with cam and mic off</div>
+      {:else if !$videoRequested}
+        <div class="message highlight">Join with cam off</div>
+      {:else if !$audioRequested}
+        <div class="message highlight">Join with mic off</div>
+      {:else}
+        <div />
+      {/if}
+      <div class="button-bar">
+        <button
+          on:click={toggleVideoRequested}
+          class:track-disabled={!$videoRequested}>
+          <icon><VideoIcon enabled={$videoRequested} /></icon>
+        </button>
+        <button
+          on:click={toggleAudioRequested}
+          class:audio-level={$audioRequested &&
+            $audioLevelSpring > AUDIO_LEVEL_MINIMUM}
+          class:track-disabled={!$audioRequested}
+          style="--audio-level:{($audioLevelSpring * 100).toFixed(2) + '%'}">
+          <icon><AudioIcon enabled={$audioRequested} /></icon>
+        </button>
+        {#if advancedSettingsSupported}
+          <button class="corner" on:click={toggleAdvancedSettings}>
+            <icon><IconSettings /></icon>
+          </button>
         {/if}
-        <div class="button-tray">
-          <button
-            on:click={toggleVideoRequested}
-            class:track-disabled={!$videoRequested}>
-            <icon><VideoIcon enabled={$videoRequested} /></icon>
-          </button>
-          <button
-            on:click={toggleAudioRequested}
-            class:audio-level={$audioRequested &&
-              $audioLevelSpring > AUDIO_LEVEL_MINIMUM}
-            class:track-disabled={!$audioRequested}
-            style="--audio-level:{($audioLevelSpring * 100).toFixed(2) + '%'}">
-            <icon><AudioIcon enabled={$audioRequested} /></icon>
-          </button>
-          {#if advancedSettingsSupported}
-            <button class="corner" on:click={toggleAdvancedSettings}>
-              <icon><IconSettings /></icon>
-            </button>
-          {/if}
-        </div>
       </div>
-    </div>
+    </VideoBox>
     <ContinueButton on:click={handleDone}>Continue</ContinueButton>
     {#if advancedSettings}
       <div class="advanced-settings">
@@ -179,20 +167,17 @@
       </div>
     {/if}
   {:else}
-    <div
-      class="video-stack filled"
-      class:blocked={requestBlocked}
-      style="transform: translate({$videoPositionSpring}px, 0)">
-      <div class="image">
+    <VideoBox bind:this={videoBox} blocked={requestBlocked} opaque={true}>
+      <div class="centered-image">
         <icon style="--size:75px"><IconVideoDisabled /></icon>
       </div>
-      <div class="message">
+      <div class="message blocked">
         {#if requestBlocked}
           Cam and mic are blocked
           <!-- <button on:click={handleHelp}>(Need help?)</button> -->
         {:else}Cam and mic are not active{/if}
       </div>
-    </div>
+    </VideoBox>
 
     <p>
       For others to see and hear you, your browser will request access to your
@@ -203,10 +188,10 @@
       {#if requestBlocked}Try Again{:else}Request Permissions{/if}
     </ContinueButton>
   {/if}
-</div>
+</mirror>
 
 <style>
-  .mirror {
+  mirror {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -216,44 +201,15 @@
     width: 375px;
     text-align: center;
   }
-  .video-box {
-    display: flex;
-    justify-content: center;
 
-    overflow: hidden;
-    border-radius: 10px;
-    width: 375px;
-    height: 225px;
-
-    background-color: #555;
-  }
-  .video-stack {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    overflow: hidden;
-
-    border-radius: 10px;
-    width: 375px;
-    height: 225px;
-  }
-  .video-stack.overlay {
-    position: absolute;
-  }
-  .video-stack.filled {
-    background-color: #555;
-  }
-  .video-stack.blocked {
-    background-color: #f55;
-  }
-  .video-stack .image {
+  .centered-image {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-grow: 1;
     margin-top: 15px;
   }
-  .video-stack .message {
+  .message {
     color: #eee;
     background-color: rgba(33, 33, 33, 0.5);
     border-radius: 10px;
@@ -263,19 +219,19 @@
 
     font-family: Verdana, Geneva, Tahoma, sans-serif;
   }
-  .video-stack .message button {
+  .blocked-message button {
     border: none;
     background: none;
     text-decoration: underline;
     cursor: pointer;
     color: white;
   }
-  .video-stack .button-tray {
+  .button-bar {
     display: flex;
     flex-direction: row;
     justify-content: center;
   }
-  .button-tray button {
+  .button-bar button {
     display: flex;
 
     color: white;
@@ -288,42 +244,19 @@
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     padding: 8px 15px;
   }
-  .button-tray button img {
-    z-index: 1;
-  }
-  .button-tray button.track-disabled {
+  .button-bar button.track-disabled {
     background-color: rgba(255, 85, 85, 0.7);
   }
-  .button-tray button:hover {
+  .button-bar button:hover {
     background-color: rgba(85, 85, 85, 0.7);
   }
-  .button-tray button.track-disabled:hover {
+  .button-bar button.track-disabled:hover {
     background-color: rgba(255, 115, 115, 0.7);
   }
-  .button-tray button.corner {
+  .button-bar button.corner {
     position: absolute;
     right: 10px;
   }
-  .video-stack.blocked .message {
-    background-color: #822;
-  }
-  /* button:active {
-    transform: translateY(1px);
-  }
-  button.main-action {
-    color: white;
-    background-color: rgba(70, 130, 180, 1);
-    border: 0;
-    border-radius: 8px;
-    margin-top: 15px;
-    padding: 8px 15px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  button.main-action:hover {
-    background-color: rgba(103, 152, 193, 1);
-  } */
   .audio-level {
     position: relative;
   }
