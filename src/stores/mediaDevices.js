@@ -4,7 +4,7 @@ import { writable } from "svelte/store";
 export const mediaDevices = createStore();
 
 function createStore() {
-  const { subscribe, set } = writable([]);
+  const { subscribe, set } = writable(null);
 
   (async () => {
     const devices = await MediaDevices.enumerateDevices();

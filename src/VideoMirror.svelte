@@ -7,6 +7,7 @@
   import { localVideoTrack } from "./stores/localVideoTrack";
   import { localAudioTrack } from "./stores/localAudioTrack";
   import { localStream } from "./stores/localStream";
+  import { permissionWouldBeGranted } from "./stores/permissionWouldBeGranted";
 
   import { audioRequested, videoRequested } from "./stores/mediaRequested";
 
@@ -48,10 +49,6 @@
     } else {
       requestBlocked = false;
     }
-  }
-
-  function devicesHaveLabels(devices) {
-    return devices.some((device) => device.label);
   }
 
   async function requestMediaPermission({ audio = true, video = true } = {}) {
@@ -106,7 +103,7 @@
   //   alert("TODO");
   // };
 
-  $: if (!hasPermission && devicesHaveLabels($mediaDevices)) {
+  $: if (!hasPermission && $permissionWouldBeGranted) {
     requestPermissions();
   }
 </script>
@@ -176,14 +173,16 @@
       </div>
     </VideoBox>
 
-    <p>
-      For others to see and hear you, your browser will request access to your
-      cam and mic.
-    </p>
+    {#if $permissionWouldBeGranted === false}
+      <p>
+        For others to see and hear you, your browser will request access to your
+        cam and mic.
+      </p>
 
-    <ContinueButton on:click={requestPermissions}>
-      {#if requestBlocked}Try Again{:else}Request Permissions{/if}
-    </ContinueButton>
+      <ContinueButton on:click={requestPermissions}>
+        {#if requestBlocked}Try Again{:else}Request Permissions{/if}
+      </ContinueButton>
+    {/if}
   {/if}
 </mirror>
 
