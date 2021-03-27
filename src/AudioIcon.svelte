@@ -5,7 +5,7 @@
 </script>
 
 {#if enabled}
-  <IconAudioEnabled />
+  <IconAudioEnabled class={$$props.class} />
 {:else}
-  <IconAudioDisabled />
+  <IconAudioDisabled class={$$props.class} />
 {/if}
