@@ -99,10 +99,6 @@
     });
   };
 
-  // const handleHelp = () => {
-  //   alert("TODO");
-  // };
-
   $: if (!hasPermission && $permissionWouldBeGranted) {
     requestPermissions();
   }
@@ -168,8 +164,9 @@
       <div class="message blocked">
         {#if requestBlocked}
           Cam and mic are blocked
-          <!-- <button on:click={handleHelp}>(Need help?)</button> -->
-        {:else}Cam and mic are not active{/if}
+        {:else}
+          Cam and mic are not active
+        {/if}
       </div>
     </VideoBox>
 
