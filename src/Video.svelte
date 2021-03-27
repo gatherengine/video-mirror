@@ -14,12 +14,14 @@
 
   let videoElement;
   let cachedStream;
+  let initiallyVisible = visible;
+  let eventuallyVisible = visible;
 
   afterUpdate(() => {
     if (cachedStream !== stream) {
       videoElement.srcObject = stream;
       cachedStream = stream;
-      visible = true;
+      eventuallyVisible = true;
     }
   });
 </script>
@@ -39,7 +41,8 @@
   class:mirror
   class:fullscreen
   class:round
-  class:visible
+  class:initiallyVisible={visible}
+  class:eventuallyVisible={initiallyVisible ? false : eventuallyVisible}
   {id}
   muted={muted ? true : undefined}
   autoPlay={autoPlay ? true : undefined}
@@ -54,7 +57,11 @@
     opacity: 0;
   }
 
-  @keyframes visible {
+  .initiallyVisible {
+    opacity: 1 !important;
+  }
+
+  @keyframes eventuallyVisible {
     from {
       opacity: 0;
     }
@@ -62,8 +69,8 @@
       opacity: 1;
     }
   }
-  .visible {
-    animation-name: visible;
+  .eventuallyVisible {
+    animation-name: eventuallyVisible;
     animation-duration: 1s;
     animation-delay: 0.5s;
     animation-timing-function: ease-in;
