@@ -10,6 +10,7 @@
   export let mirror = false;
   export let muted = true;
   export let round = false;
+  export let visible = false;
 
   let videoElement;
   let cachedStream;
@@ -18,6 +19,7 @@
     if (cachedStream !== stream) {
       videoElement.srcObject = stream;
       cachedStream = stream;
+      visible = true;
     }
   });
 </script>
@@ -37,6 +39,7 @@
   class:mirror
   class:fullscreen
   class:round
+  class:visible
   {id}
   muted={muted ? true : undefined}
   autoPlay={autoPlay ? true : undefined}
@@ -48,6 +51,23 @@
     object-fit: cover;
     width: 100%;
     height: 100%;
+    opacity: 0;
+  }
+
+  @keyframes visible {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  .visible {
+    animation-name: visible;
+    animation-duration: 1s;
+    animation-delay: 0.5s;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
   }
   .mirror {
     transform: scaleX(-1);
