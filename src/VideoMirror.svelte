@@ -179,6 +179,8 @@
       <ContinueButton on:click={requestPermissions}>
         {#if requestBlocked}Try Again{:else}Request Permissions{/if}
       </ContinueButton>
+    {:else}
+      <button-placeholder />
     {/if}
   {/if}
 </mirror>
@@ -263,5 +265,12 @@
     width: var(--size, 32px);
     height: var(--size, 32px);
     color: white;
+  }
+
+  button-placeholder {
+    display: block;
+    height: 28px;
+    margin: 32px auto 8px auto;
+    padding: 12px 18px;
   }
 </style>
