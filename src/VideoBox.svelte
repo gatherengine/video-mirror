@@ -5,6 +5,7 @@
 
   export let blocked = false;
   export let opaque = false;
+  export let enabled = true;
 
   let videoPositionSpring = spring(0, {
     stiffness: 0.5,
@@ -18,7 +19,9 @@
 </script>
 
 <container class:opaque={!opaque}>
-  <Video stream={$localStream} mirror={true} class="rounded-video" />
+  {#if enabled}
+    <Video stream={$localStream} mirror={true} class="rounded-video" />
+  {/if}
   <div
     class:opaque
     class:blocked

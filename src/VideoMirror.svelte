@@ -106,7 +106,7 @@
 
 <mirror>
   {#if hasPermission}
-    <VideoBox bind:this={videoBox}>
+    <VideoBox bind:this={videoBox} enabled={$videoRequested}>
       {#if !$audioRequested && !$videoRequested}
         <div class="message highlight">Join with cam and mic off</div>
       {:else if !$videoRequested}

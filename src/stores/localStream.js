@@ -11,7 +11,7 @@ export const localStream = derived(
       set(null);
       return;
     }
-    
+
     if ($audioTrack) {
       stream.getAudioTracks().forEach((track) => {
         stream.removeTrack(track);
