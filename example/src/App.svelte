@@ -1,12 +1,19 @@
 <script>
   import { VideoMirror } from "video-mirror";
+
+  let isDone = false;
+  function done() {
+    isDone = true;
+  }
 </script>
 
 <main>
-  <VideoMirror />
-  <div>
-    Additional Instructions
-  </div>
+  {#if isDone}
+    Done
+  {:else}
+    <VideoMirror on:done={done} />
+  {/if}
+  <div>Additional Instructions</div>
 </main>
 
 <style>
