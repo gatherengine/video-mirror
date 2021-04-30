@@ -1,6 +1,11 @@
 <script>
   import { VideoMirror } from "video-mirror";
 
+  // i18n or alternative text supported via 'tr' translations object
+  let tr = {
+    continue: "Proceed",
+  };
+
   let isDone = false;
   function done() {
     isDone = true;
@@ -11,7 +16,7 @@
   {#if isDone}
     Done
   {:else}
-    <VideoMirror on:done={done} />
+    <VideoMirror {tr} on:done={done} />
   {/if}
   <div>Additional Instructions</div>
 </main>

@@ -20,6 +20,11 @@
   import AudioIcon from "./AudioIcon.svelte";
   import { IconSettings, IconVideoDisabled } from "./icons";
 
+  export let tr = {};
+
+  // i18n translations available, if passed in
+  const _ = (phrase, key) => tr[key] || tr[phrase] || phrase;
+
   // TODO: make advanced settings work again
   const advancedSettingsSupported = false;
 
@@ -108,11 +113,17 @@
   {#if hasPermission}
     <VideoBox bind:this={videoBox} enabled={$videoRequested}>
       {#if !$audioRequested && !$videoRequested}
-        <div class="message highlight">Join with cam and mic off</div>
+        <div class="message highlight">
+          {_("Join with cam and mic off", "join_cam_mic_off")}
+        </div>
       {:else if !$videoRequested}
-        <div class="message highlight">Join with cam off</div>
+        <div class="message highlight">
+          {_("Join with cam off", "join_cam_off")}
+        </div>
       {:else if !$audioRequested}
-        <div class="message highlight">Join with mic off</div>
+        <div class="message highlight">
+          {_("Join with mic off", "join_mic_off")}
+        </div>
       {:else}
         <div />
       {/if}
@@ -145,7 +156,8 @@
         {/if}
       </div>
     </VideoBox>
-    <ContinueButton on:click={handleDone}>Continue</ContinueButton>
+    <ContinueButton on:click={handleDone}
+      >{_("Continue", "continue")}</ContinueButton>
     {#if advancedSettings}
       <div class="advanced-settings">
         advanced
@@ -163,21 +175,27 @@
       </div>
       <div class="message blocked">
         {#if requestBlocked}
-          Cam and mic are blocked
+          {_("Cam and mic are blocked", "cam_mic_blocked")}
         {:else}
-          Cam and mic are not active
+          {_("Cam and mic are not active", "cam_mic_not_active")}
         {/if}
       </div>
     </VideoBox>
 
     {#if $permissionWouldBeGranted === false}
       <p>
-        For others to see and hear you, your browser will request access to your
-        cam and mic.
+        {_(
+          "For others to see and hear you, your browser will request access to your cam and mic.",
+          "access_will_be_requested"
+        )}
       </p>
 
       <ContinueButton on:click={requestPermissions}>
-        {#if requestBlocked}Try Again{:else}Request Permissions{/if}
+        {#if requestBlocked}
+          {_("Try Again", "try_again")}
+        {:else}
+          {_("Request Permissions", "request_perms")}
+        {/if}
       </ContinueButton>
     {:else}
       <button-placeholder />
