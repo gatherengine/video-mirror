@@ -75,6 +75,9 @@
    */
   async function requestPermissions() {
     const response = await requestMediaPermission();
+    
+    $audioRequested = true;
+    $videoRequested = true;
 
     if (response) {
       hasPermission = true;
