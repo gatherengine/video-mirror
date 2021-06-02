@@ -21,6 +21,7 @@
   import { IconSettings, IconVideoDisabled } from "./icons";
 
   export let tr = {};
+  export let showButtonBar = true;
 
   // i18n translations available, if passed in
   const _ = (phrase, key) => tr[key] || tr[phrase] || phrase;
@@ -75,7 +76,7 @@
    */
   async function requestPermissions() {
     const response = await requestMediaPermission();
-    
+
     $audioRequested = true;
     $videoRequested = true;
 
@@ -130,34 +131,36 @@
       {:else}
         <div />
       {/if}
-      <div class="button-bar">
-        <button
-          on:click={toggleVideoRequested}
-          class:track-disabled={!$videoRequested}>
-          <icon><VideoIcon enabled={$videoRequested} /></icon>
-        </button>
-        <button
-          class="audio-level-button"
-          class:track-disabled={!$audioRequested}
-          on:click={toggleAudioRequested}>
-          {#if $audioRequested}
-            <AudioLevelIndicator>
+      {#if showButtonBar}
+        <div class="button-bar">
+          <button
+            on:click={toggleVideoRequested}
+            class:track-disabled={!$videoRequested}>
+            <icon><VideoIcon enabled={$videoRequested} /></icon>
+          </button>
+          <button
+            class="audio-level-button"
+            class:track-disabled={!$audioRequested}
+            on:click={toggleAudioRequested}>
+            {#if $audioRequested}
+              <AudioLevelIndicator>
+                <icon class="audio-level-icon">
+                  <AudioIcon enabled={$audioRequested} />
+                </icon>
+              </AudioLevelIndicator>
+            {:else}
               <icon class="audio-level-icon">
                 <AudioIcon enabled={$audioRequested} />
               </icon>
-            </AudioLevelIndicator>
-          {:else}
-            <icon class="audio-level-icon">
-              <AudioIcon enabled={$audioRequested} />
-            </icon>
-          {/if}
-        </button>
-        {#if advancedSettingsSupported}
-          <button class="corner" on:click={toggleAdvancedSettings}>
-            <icon><IconSettings /></icon>
+            {/if}
           </button>
-        {/if}
-      </div>
+          {#if advancedSettingsSupported}
+            <button class="corner" on:click={toggleAdvancedSettings}>
+              <icon><IconSettings /></icon>
+            </button>
+          {/if}
+        </div>
+      {/if}
     </VideoBox>
     <ContinueButton on:click={handleDone}
       >{_("Continue", "continue")}</ContinueButton>
@@ -186,13 +189,6 @@
     </VideoBox>
 
     {#if $permissionWouldBeGranted === false}
-      <p>
-        {_(
-          "For others to see and hear you, your browser will request access to your cam and mic.",
-          "access_will_be_requested"
-        )}
-      </p>
-
       <ContinueButton on:click={requestPermissions}>
         {#if requestBlocked}
           {_("Try Again", "try_again")}
