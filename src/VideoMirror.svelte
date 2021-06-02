@@ -209,11 +209,6 @@
     align-items: center;
     width: 500px;
   }
-  p {
-    width: 375px;
-    text-align: center;
-  }
-
   .centered-image {
     display: flex;
     justify-content: center;
