@@ -1,5 +1,6 @@
 // The main component!
 export { default as VideoMirror } from "./VideoMirror.svelte";
+export { getUserMedia } from './getUserMedia'
 
 // Export individual components that might be useful externally
 export { default as Audio } from "./Audio.svelte";
@@ -10,7 +11,6 @@ export { default as AudioLevelIndicator } from "./AudioLevelIndicator.svelte";
 
 // Export stores that might be useful externally
 export { mediaDevices } from "./stores/mediaDevices";
-export { getUserMedia } from './getUserMedia'
 export { localAudioLevel } from "./stores/localAudioLevel";
 export { localAudioTrack } from "./stores/localAudioTrack";
 export { localVideoTrack } from "./stores/localVideoTrack";
