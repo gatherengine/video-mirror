@@ -10,6 +10,7 @@ export { default as AudioLevelIndicator } from "./AudioLevelIndicator.svelte";
 
 // Export stores that might be useful externally
 export { mediaDevices } from "./stores/mediaDevices";
+export { getUserMedia } from './getUserMedia'
 export { localAudioLevel } from "./stores/localAudioLevel";
 export { localAudioTrack } from "./stores/localAudioTrack";
 export { localVideoTrack } from "./stores/localVideoTrack";

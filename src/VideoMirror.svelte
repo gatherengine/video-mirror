@@ -1,7 +1,8 @@
 <script>
   import { createEventDispatcher } from "svelte";
 
-  import MediaDevices from "media-devices";
+  // import MediaDevices from "media-devices";
+  import { getUserMedia } from "./getUserMedia";
   import { mediaDevices } from "./stores/mediaDevices.js";
 
   import { localVideoTrack } from "./stores/localVideoTrack";
@@ -59,7 +60,7 @@
 
   async function requestMediaPermission({ audio = true, video = true } = {}) {
     try {
-      return await MediaDevices.getUserMedia({ audio, video });
+      return await getUserMedia({ audio, video });
     } catch (err) {
       if (audio && video) {
         return await requestMediaPermission({ audio: true, video: false });
@@ -75,20 +76,13 @@
    * @returns hasPermission, blocked(?), tracks
    */
   async function requestPermissions() {
-    const response = await requestMediaPermission();
+    const stream = await requestMediaPermission();
 
     $audioRequested = true;
     $videoRequested = true;
 
-    if (response) {
+    if (stream) {
       hasPermission = true;
-      response.getTracks().forEach((track) => {
-        // prettier-ignore
-        switch(track.kind) {
-          case 'audio': $localAudioTrack = track; break;
-          case 'video': $localVideoTrack = track; break;
-        }
-      });
     } else {
       // Visually indicate that the request was blocked if we don't have permission
       setRequestBlocked(true);
