@@ -133,7 +133,7 @@
             class="audio-level-button"
             class:track-disabled={!$audioRequested}
             on:click={toggleAudioRequested}>
-            <!-- {#if $audioRequested}
+            {#if $audioRequested}
               <AudioLevelIndicator>
                 <icon class="audio-level-icon">
                   <AudioIcon enabled={$audioRequested} />
@@ -143,10 +143,10 @@
               <icon class="audio-level-icon">
                 <AudioIcon enabled={$audioRequested} />
               </icon>
-            {/if} -->
+            {/if}
           </button>
           <button class="corner" on:click={toggleAdvancedSettings}>
-            <icon><IconSettings />hello!</icon>
+            <icon><IconSettings /></icon>
           </button>
         </div>
       {/if}

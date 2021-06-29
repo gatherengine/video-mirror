@@ -1,14 +1,12 @@
 <script>
   import { createEventDispatcher } from "svelte";
 
-  import groupBy from "~/utils/groupBy.js";
+  import groupBy from "./groupBy";
   import Select from "./Select";
 
-  import {
-    mediaDevices,
-    // defaultDevices,
-    // selectedDevices,
-  } from "../stores/mediaDevices.js";
+  import { mediaDevices } from "../stores/mediaDevices.js";
+  import { defaultDeviceIds } from "../stores/defaultDeviceIds.js";
+  import { selectedDeviceIds } from "../stores/selectedDeviceIds.js";
 
   import {
     IconAudioEnabled,
@@ -26,13 +24,14 @@
     audiooutput: IconSoundSpeaker,
   };
 
-  // function selected(option, kind) {
-  //   if (option.value !== $selectedDevices[kind]) {
-  //     $selectedDevices[kind] = option.value;
-  //     dispatch("changed", { kind, value: option.value });
-  //   }
-  //   dispatch("selected", { kind, value: option.value });
-  // }
+  function handleSelect(option, kind) {
+    if (option.value !== $selectedDeviceIds[kind]) {
+      $selectedDeviceIds[kind] = option.value;
+      console.log("handleSelect", $selectedDeviceIds);
+      dispatch("changed", { kind, value: option.value });
+    }
+    dispatch("selected", { kind, value: option.value });
+  }
 
   /**
    * Options are derived from deviceList: i.e. an object grouped by the kind of device:
@@ -54,11 +53,11 @@
 </script>
 
 {#each kinds as kind}
-    <!-- selected={$selectedDevices[kind] || $defaultDevices[kind]} -->
-    <!-- onSelect={(option) => {
-      selected(option, kind);
-    }} -->
   <Select
+    selected={$defaultDeviceIds[kind]}
+    onSelect={(option) => {
+      handleSelect(option, kind);
+    }}
     options={options[kind]}
     icon={icons[kind]} />
 {/each}

@@ -28,7 +28,6 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    color: red;
   }
   div {
     margin-top: 16px;

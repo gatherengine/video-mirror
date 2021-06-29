@@ -1,4 +1,4 @@
-export function hasAncestor(element, ancestor) {
+export default function hasAncestor(element, ancestor) {
   if (element === null) {
     return false;
   } else if (element === ancestor) {
