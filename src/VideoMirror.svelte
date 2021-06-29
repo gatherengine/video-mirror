@@ -15,7 +15,7 @@
   import VideoBox from "./VideoBox.svelte";
   import AudioLevelIndicator from "./AudioLevelIndicator.svelte";
   import ContinueButton from "./ContinueButton.svelte";
-  // import DeviceSelector from "./DeviceSelector";
+  import DeviceSelector from "./DeviceSelector";
 
   import VideoIcon from "./VideoIcon.svelte";
   import AudioIcon from "./AudioIcon.svelte";
@@ -26,9 +26,6 @@
 
   // i18n translations available, if passed in
   const _ = (phrase, key) => tr[key] || tr[phrase] || phrase;
-
-  // TODO: make advanced settings work again
-  const advancedSettingsSupported = false;
 
   const dispatch = createEventDispatcher();
 
@@ -136,7 +133,7 @@
             class="audio-level-button"
             class:track-disabled={!$audioRequested}
             on:click={toggleAudioRequested}>
-            {#if $audioRequested}
+            <!-- {#if $audioRequested}
               <AudioLevelIndicator>
                 <icon class="audio-level-icon">
                   <AudioIcon enabled={$audioRequested} />
@@ -146,13 +143,11 @@
               <icon class="audio-level-icon">
                 <AudioIcon enabled={$audioRequested} />
               </icon>
-            {/if}
+            {/if} -->
           </button>
-          {#if advancedSettingsSupported}
-            <button class="corner" on:click={toggleAdvancedSettings}>
-              <icon><IconSettings /></icon>
-            </button>
-          {/if}
+          <button class="corner" on:click={toggleAdvancedSettings}>
+            <icon><IconSettings />hello!</icon>
+          </button>
         </div>
       {/if}
     </VideoBox>
@@ -160,12 +155,10 @@
       >{_("Continue", "continue")}</ContinueButton>
     {#if advancedSettings}
       <div class="advanced-settings">
-        advanced
-        <!-- <DeviceSelector
-          selected={selectedDevices}
+        <DeviceSelector
           on:changed={(_) => {
             requestPermissions();
-          }} /> -->
+          }} />
       </div>
     {/if}
   {:else}

@@ -5,10 +5,10 @@
   import Select from "./Select";
 
   import {
-    deviceList,
-    defaultDevices,
-    selectedDevices,
-  } from "../DeviceListStore.js";
+    mediaDevices,
+    // defaultDevices,
+    // selectedDevices,
+  } from "../stores/mediaDevices.js";
 
   import {
     IconAudioEnabled,
@@ -26,13 +26,13 @@
     audiooutput: IconSoundSpeaker,
   };
 
-  function selected(option, kind) {
-    if (option.value !== $selectedDevices[kind]) {
-      $selectedDevices[kind] = option.value;
-      dispatch("changed", { kind, value: option.value });
-    }
-    dispatch("selected", { kind, value: option.value });
-  }
+  // function selected(option, kind) {
+  //   if (option.value !== $selectedDevices[kind]) {
+  //     $selectedDevices[kind] = option.value;
+  //     dispatch("changed", { kind, value: option.value });
+  //   }
+  //   dispatch("selected", { kind, value: option.value });
+  // }
 
   /**
    * Options are derived from deviceList: i.e. an object grouped by the kind of device:
@@ -44,7 +44,7 @@
    */
   let options = {};
   $: options = groupBy(
-    $deviceList.map((input) => ({
+    $mediaDevices.map((input) => ({
       value: input.deviceId,
       label: input.label,
       kind: input.kind,
@@ -54,11 +54,11 @@
 </script>
 
 {#each kinds as kind}
-  <Select
-    selected={$selectedDevices[kind] || $defaultDevices[kind]}
-    options={options[kind]}
-    onSelect={(option) => {
+    <!-- selected={$selectedDevices[kind] || $defaultDevices[kind]} -->
+    <!-- onSelect={(option) => {
       selected(option, kind);
-    }}
+    }} -->
+  <Select
+    options={options[kind]}
     icon={icons[kind]} />
 {/each}
