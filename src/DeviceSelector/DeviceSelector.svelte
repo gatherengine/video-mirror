@@ -4,9 +4,11 @@
   import groupBy from "./groupBy";
   import Select from "./Select";
 
-  import { mediaDevices } from "../stores/mediaDevices.js";
-  import { defaultDeviceIds } from "../stores/defaultDeviceIds.js";
-  import { selectedDeviceIds } from "../stores/selectedDeviceIds.js";
+  import { mediaDevices } from "../stores/mediaDevices";
+  import { defaultDeviceIds } from "../stores/defaultDeviceIds";
+  import { selectedDeviceIds } from "../stores/selectedDeviceIds";
+  import { localAudioTrack } from '../stores/localAudioTrack';
+  import { localVideoTrack } from '../stores/localVideoTrack';
 
   import {
     IconAudioEnabled,

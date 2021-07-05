@@ -1,16 +1,19 @@
 <script>
   import { createEventDispatcher } from "svelte";
 
-  // import MediaDevices from "media-devices";
   import { getUserMedia } from "./getUserMedia";
-  import { mediaDevices } from "./stores/mediaDevices.js";
 
-  import { localVideoTrack } from "./stores/localVideoTrack";
-  import { localAudioTrack } from "./stores/localAudioTrack";
-  import { localStream } from "./stores/localStream";
-  import { permissionWouldBeGranted } from "./stores/permissionWouldBeGranted";
-
-  import { audioRequested, videoRequested } from "./stores/mediaRequested";
+  import {
+    audioDesired,
+    videoDesired,
+    localAudioTrack,
+    localVideoTrack,
+    localStream,
+    mediaDevices,
+    permissionGranted,
+    permissionOkToAsk,
+    permissionWouldBeGranted,
+  } from "./stores";
 
   import VideoBox from "./VideoBox.svelte";
   import AudioLevelIndicator from "./AudioLevelIndicator.svelte";
@@ -32,13 +35,12 @@
   // Local state
   let requestBlocked = false;
   let advancedSettings = false;
-  let hasPermission = false;
 
   let videoBox = null;
 
-  const toggleAudioRequested = () => ($audioRequested = !$audioRequested);
+  const toggleAudioDesired = () => ($audioDesired = !$audioDesired);
 
-  const toggleVideoRequested = () => ($videoRequested = !$videoRequested);
+  const toggleVideoDesired = () => ($videoDesired = !$videoDesired);
 
   const toggleAdvancedSettings = () => (advancedSettings = !advancedSettings);
 
@@ -56,8 +58,23 @@
   }
 
   async function requestMediaPermission({ audio = true, video = true } = {}) {
+    console.log("requestMediaPermission");
     try {
       return await getUserMedia({ audio, video });
+      // video: {
+      //   deviceId: { exact: videoDeviceId },
+      //   ...VIDEO_CONSTRAINTS[this._webcam.resolution],
+      // },
+      // audio: {
+      //   deviceId: { ideal: audioDeviceId},
+      //   autoGainControl: false,
+      //   echoCancellation: true,
+      //   noiseSuppression: true,
+      //   channelCount: 2,
+      //   sampleRate: 48000,
+      //   sampleSize: 16,
+      //   volume: 1.0,
+      // },
     } catch (err) {
       if (audio && video) {
         return await requestMediaPermission({ audio: true, video: false });
@@ -69,53 +86,54 @@
     }
   }
   /**
-   * localTracks, audioRequested, videoRequested
-   * @returns hasPermission, blocked(?), tracks
+   * localTracks, audioDesired, videoDesired
+   * @returns $permissionGranted, blocked(?), tracks
    */
   async function requestPermissions() {
     const stream = await requestMediaPermission();
 
-    $audioRequested = true;
-    $videoRequested = true;
+    $audioDesired = true;
+    $videoDesired = true;
 
     if (stream) {
-      hasPermission = true;
+      $permissionGranted = true;
     } else {
       // Visually indicate that the request was blocked if we don't have permission
       setRequestBlocked(true);
     }
-
-    // After asking for permission, it's possible the browser will now allow us
-    // to see more information about the devices available to the user, so requery
-    // await deviceList.requery();
   }
 
   const handleDone = () => {
     dispatch("done", {
       devices: $mediaDevices,
-      audio: $audioRequested ? $localAudioTrack : null,
-      video: $videoRequested ? $localVideoTrack : null,
+      audio: $audioDesired ? $localAudioTrack : null,
+      video: $videoDesired ? $localVideoTrack : null,
       stream: $localStream,
     });
   };
 
-  $: if (!hasPermission && $permissionWouldBeGranted) {
+  const handleDeviceSelected = ({ detail }) => {
+    if (detail.kind === "audioinput") console.log("device changed", detail);
+    requestPermissions();
+  };
+
+  $: if (!$permissionGranted && $permissionWouldBeGranted) {
     requestPermissions();
   }
 </script>
 
 <mirror>
-  {#if hasPermission}
-    <VideoBox bind:this={videoBox} enabled={$videoRequested}>
-      {#if !$audioRequested && !$videoRequested}
+  {#if $permissionGranted}
+    <VideoBox bind:this={videoBox} enabled={$videoDesired}>
+      {#if !$audioDesired && !$videoDesired}
         <div class="message highlight">
           {_("Join with cam and mic off", "join_cam_mic_off")}
         </div>
-      {:else if !$videoRequested}
+      {:else if !$videoDesired}
         <div class="message highlight">
           {_("Join with cam off", "join_cam_off")}
         </div>
-      {:else if !$audioRequested}
+      {:else if !$audioDesired}
         <div class="message highlight">
           {_("Join with mic off", "join_mic_off")}
         </div>
@@ -125,23 +143,23 @@
       {#if showButtonBar}
         <div class="button-bar">
           <button
-            on:click={toggleVideoRequested}
-            class:track-disabled={!$videoRequested}>
-            <icon><VideoIcon enabled={$videoRequested} /></icon>
+            on:click={toggleVideoDesired}
+            class:track-disabled={!$videoDesired}>
+            <icon><VideoIcon enabled={$videoDesired} /></icon>
           </button>
           <button
             class="audio-level-button"
-            class:track-disabled={!$audioRequested}
-            on:click={toggleAudioRequested}>
-            {#if $audioRequested}
+            class:track-disabled={!$audioDesired}
+            on:click={toggleAudioDesired}>
+            {#if $audioDesired}
               <AudioLevelIndicator>
                 <icon class="audio-level-icon">
-                  <AudioIcon enabled={$audioRequested} />
+                  <AudioIcon enabled={$audioDesired} />
                 </icon>
               </AudioLevelIndicator>
             {:else}
               <icon class="audio-level-icon">
-                <AudioIcon enabled={$audioRequested} />
+                <AudioIcon enabled={$audioDesired} />
               </icon>
             {/if}
           </button>
@@ -155,10 +173,7 @@
       >{_("Continue", "continue")}</ContinueButton>
     {#if advancedSettings}
       <div class="advanced-settings">
-        <DeviceSelector
-          on:changed={(_) => {
-            requestPermissions();
-          }} />
+        <DeviceSelector on:changed={handleDeviceSelected} />
       </div>
     {/if}
   {:else}
@@ -213,13 +228,6 @@
 
     font-family: Verdana, Geneva, Tahoma, sans-serif;
   }
-  /* .blocked-message button {
-    border: none;
-    background: none;
-    text-decoration: underline;
-    cursor: pointer;
-    color: white;
-  } */
   .button-bar {
     display: flex;
     flex-direction: row;
