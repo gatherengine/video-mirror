@@ -8,8 +8,9 @@ function devicesHaveLabels(devices) {
 export const permissionWouldBeGranted = derived(
   [mediaDevices],
   ([$mediaDevices], set) => {
+    console.log('mediaDevices', $mediaDevices);
     if ($mediaDevices === null) {
-      set(null);
+      set(false);
     } else {
       set(devicesHaveLabels($mediaDevices));
     }

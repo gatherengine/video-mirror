@@ -1,6 +1,5 @@
 // The main component!
 export { default as VideoMirror } from "./VideoMirror.svelte";
-export { getUserMedia } from "./getUserMedia";
 
 // Export individual components that might be useful externally
 export { default as Audio } from "./Audio.svelte";

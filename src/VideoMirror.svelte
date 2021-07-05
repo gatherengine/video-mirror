@@ -1,17 +1,13 @@
 <script>
   import { createEventDispatcher } from "svelte";
 
-  import { getUserMedia } from "./getUserMedia";
-
   import {
     audioDesired,
     videoDesired,
-    localAudioTrack,
-    localVideoTrack,
     localStream,
     mediaDevices,
-    permissionGranted,
-    permissionOkToAsk,
+    permissionBlocked,
+    permissionRevision,
     permissionWouldBeGranted,
   } from "./stores";
 
@@ -33,7 +29,6 @@
   const dispatch = createEventDispatcher();
 
   // Local state
-  let requestBlocked = false;
   let advancedSettings = false;
 
   let videoBox = null;
@@ -44,86 +39,29 @@
 
   const toggleAdvancedSettings = () => (advancedSettings = !advancedSettings);
 
-  function setRequestBlocked(blocked) {
-    if (blocked) {
-      if (requestBlocked) {
-        // Visual feedback already indicates red,
-        // so shake it to emphasize error
-        videoBox.shake();
-      }
-      requestBlocked = true;
-    } else {
-      requestBlocked = false;
-    }
-  }
+  $: console.log("permissionWouldBeGranted", $permissionWouldBeGranted);
+  $: console.log("permissionBlocked", $permissionBlocked);
 
-  async function requestMediaPermission({ audio = true, video = true } = {}) {
-    console.log("requestMediaPermission");
-    try {
-      return await getUserMedia({ audio, video });
-      // video: {
-      //   deviceId: { exact: videoDeviceId },
-      //   ...VIDEO_CONSTRAINTS[this._webcam.resolution],
-      // },
-      // audio: {
-      //   deviceId: { ideal: audioDeviceId},
-      //   autoGainControl: false,
-      //   echoCancellation: true,
-      //   noiseSuppression: true,
-      //   channelCount: 2,
-      //   sampleRate: 48000,
-      //   sampleSize: 16,
-      //   volume: 1.0,
-      // },
-    } catch (err) {
-      if (audio && video) {
-        return await requestMediaPermission({ audio: true, video: false });
-      } else if (audio) {
-        return await requestMediaPermission({ video: true, audio: false });
-      } else {
-        return null;
-      }
-    }
-  }
-  /**
-   * localTracks, audioDesired, videoDesired
-   * @returns $permissionGranted, blocked(?), tracks
-   */
-  async function requestPermissions() {
-    const stream = await requestMediaPermission();
-
-    $audioDesired = true;
-    $videoDesired = true;
-
-    if (stream) {
-      $permissionGranted = true;
-    } else {
-      // Visually indicate that the request was blocked if we don't have permission
-      setRequestBlocked(true);
-    }
+  $: if ($permissionBlocked) {
+    // Visual feedback already indicates red,
+    // so shake it to emphasize error
+    videoBox.shake();
   }
 
   const handleDone = () => {
     dispatch("done", {
       devices: $mediaDevices,
-      audio: $audioDesired ? $localAudioTrack : null,
-      video: $videoDesired ? $localVideoTrack : null,
       stream: $localStream,
     });
   };
 
   const handleDeviceSelected = ({ detail }) => {
-    if (detail.kind === "audioinput") console.log("device changed", detail);
-    requestPermissions();
+    dispatch("device-selected", detail);
   };
-
-  $: if (!$permissionGranted && $permissionWouldBeGranted) {
-    requestPermissions();
-  }
 </script>
 
 <mirror>
-  {#if $permissionGranted}
+  {#if $localStream}
     <VideoBox bind:this={videoBox} enabled={$videoDesired}>
       {#if !$audioDesired && !$videoDesired}
         <div class="message highlight">
@@ -177,12 +115,12 @@
       </div>
     {/if}
   {:else}
-    <VideoBox bind:this={videoBox} blocked={requestBlocked} opaque={true}>
+    <VideoBox bind:this={videoBox} blocked={$permissionBlocked} opaque={true}>
       <div class="centered-image">
         <icon style="--size:75px"><IconVideoDisabled /></icon>
       </div>
       <div class="message blocked">
-        {#if requestBlocked}
+        {#if $permissionBlocked}
           {_("Cam and mic are blocked", "cam_mic_blocked")}
         {:else}
           {_("Cam and mic are not active", "cam_mic_not_active")}
@@ -191,8 +129,11 @@
     </VideoBox>
 
     {#if $permissionWouldBeGranted === false}
-      <ContinueButton on:click={requestPermissions}>
-        {#if requestBlocked}
+      <ContinueButton
+        on:click={() => {
+          $permissionRevision += 1;
+        }}>
+        {#if $permissionBlocked}
           {_("Try Again", "try_again")}
         {:else}
           {_("Request Permissions", "request_perms")}

@@ -4,11 +4,12 @@
   import groupBy from "./groupBy";
   import Select from "./Select";
 
-  import { mediaDevices } from "../stores/mediaDevices";
-  import { defaultDeviceIds } from "../stores/defaultDeviceIds";
-  import { selectedDeviceIds } from "../stores/selectedDeviceIds";
-  import { localAudioTrack } from '../stores/localAudioTrack';
-  import { localVideoTrack } from '../stores/localVideoTrack';
+  import {
+    permissionRevision,
+    mediaDevices,
+    defaultDeviceIds,
+    selectedDeviceIds,
+  } from "../stores";
 
   import {
     IconAudioEnabled,
@@ -29,7 +30,7 @@
   function handleSelect(option, kind) {
     if (option.value !== $selectedDeviceIds[kind]) {
       $selectedDeviceIds[kind] = option.value;
-      console.log("handleSelect", $selectedDeviceIds);
+      $permissionRevision++;
       dispatch("changed", { kind, value: option.value });
     }
     dispatch("selected", { kind, value: option.value });
