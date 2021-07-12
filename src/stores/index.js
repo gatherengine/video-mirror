@@ -1,6 +1,9 @@
 export { audioDesired } from "./audioDesired";
 export { videoDesired } from "./videoDesired";
 
+export { audioTrack } from "./audioTrack";
+export { videoTrack } from "./videoTrack";
+
 export { audioConstraints } from "./audioConstraints";
 export { videoConstraints } from "./videoConstraints";
 

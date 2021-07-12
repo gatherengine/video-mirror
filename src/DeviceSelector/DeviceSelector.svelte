@@ -56,11 +56,13 @@
 </script>
 
 {#each kinds as kind}
-  <Select
-    selected={$defaultDeviceIds[kind]}
-    onSelect={(option) => {
-      handleSelect(option, kind);
-    }}
-    options={options[kind]}
-    icon={icons[kind]} />
+  {#if options[kind] && options[kind].length > 0}
+    <Select
+      selected={$defaultDeviceIds[kind]}
+      onSelect={(option) => {
+        handleSelect(option, kind);
+      }}
+      options={options[kind]}
+      icon={icons[kind]} />
+  {/if}
 {/each}

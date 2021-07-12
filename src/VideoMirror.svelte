@@ -39,9 +39,6 @@
 
   const toggleAdvancedSettings = () => (advancedSettings = !advancedSettings);
 
-  $: console.log("permissionWouldBeGranted", $permissionWouldBeGranted);
-  $: console.log("permissionBlocked", $permissionBlocked);
-
   $: if ($permissionBlocked) {
     // Visual feedback already indicates red,
     // so shake it to emphasize error

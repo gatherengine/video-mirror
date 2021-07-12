@@ -16,7 +16,7 @@ import { selectedDeviceIds } from "./selectedDeviceIds";
 
 let grantedOnce = false;
 let gumRevision = 0;
-let previousStream;
+let previousStream = null;
 
 export const localStream = derived(
   [
@@ -56,15 +56,15 @@ export const localStream = derived(
 
       if (audio || video) {
         gumRevision = $permissionRevision;
-
         requestMediaPermission({
           audio,
           video,
+          previousStream,
         }).then((stream) => {
-          previousStream = stream;
           set(stream);
           if (stream) {
             grantedOnce = true;
+            previousStream = stream;
             permissionBlocked.set(0);
           } else {
             permissionBlocked.update((value) => value + 1);
@@ -82,16 +82,18 @@ export const localStream = derived(
  * @param {boolean|MediaStreamConstraints} video Either a boolean or an object containing video constraints
  * @returns MediaStream?
  */
-async function requestMediaPermission({ audio = true, video = true } = {}) {
+async function requestMediaPermission({
+  audio = true,
+  video = true,
+  previousStream = null,
+} = {}) {
   try {
     return await MediaDevices.getUserMedia({ audio, video });
   } catch (err) {
     // For Firefox, we need to disable the previously selected Mic, else
     // "DOMException: Concurrent mic process limit."
     if (err.name === "NotReadableError" && previousStream) {
-      for (let track of previousStream.getAudioTracks()) {
-        track.stop();
-      }
+      previousStream.getTracks().forEach(track => track.stop());
       previousStream = null;
       return await requestMediaPermission({ audio, video });
     } else if (audio && video) {
