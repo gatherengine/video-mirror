@@ -2,14 +2,13 @@
   import { createEventDispatcher } from "svelte";
 
   import {
-    audioDesired,
-    videoDesired,
+    mediaDesired,
     localStream,
     mediaDevices,
     permissionBlocked,
-    permissionRevision,
     permissionWouldBeGranted,
   } from "./stores";
+  import { requestPermission } from "./stores/permissionRevision";
 
   import VideoBox from "./VideoBox.svelte";
   import AudioLevelIndicator from "./AudioLevelIndicator.svelte";
@@ -33,9 +32,11 @@
 
   let videoBox = null;
 
-  const toggleAudioDesired = () => ($audioDesired = !$audioDesired);
+  const toggleAudioDesired = () =>
+    mediaDesired.update((state) => ({ ...state, audio: !state.audio }));
 
-  const toggleVideoDesired = () => ($videoDesired = !$videoDesired);
+  const toggleVideoDesired = () =>
+    mediaDesired.update((state) => ({ ...state, video: !state.video }));
 
   const toggleAdvancedSettings = () => (advancedSettings = !advancedSettings);
 
@@ -59,16 +60,16 @@
 
 <mirror>
   {#if $localStream}
-    <VideoBox bind:this={videoBox} enabled={$videoDesired}>
-      {#if !$audioDesired && !$videoDesired}
+    <VideoBox bind:this={videoBox} enabled={$mediaDesired.video}>
+      {#if !$mediaDesired.audio && !$mediaDesired.video}
         <div class="message highlight">
           {_("Join with cam and mic off", "join_cam_mic_off")}
         </div>
-      {:else if !$videoDesired}
+      {:else if !$mediaDesired.video}
         <div class="message highlight">
           {_("Join with cam off", "join_cam_off")}
         </div>
-      {:else if !$audioDesired}
+      {:else if !$mediaDesired.audio}
         <div class="message highlight">
           {_("Join with mic off", "join_mic_off")}
         </div>
@@ -79,22 +80,22 @@
         <div class="button-bar">
           <button
             on:click={toggleVideoDesired}
-            class:track-disabled={!$videoDesired}>
-            <icon><VideoIcon enabled={$videoDesired} /></icon>
+            class:track-disabled={!$mediaDesired.video}>
+            <icon><VideoIcon enabled={$mediaDesired.video} /></icon>
           </button>
           <button
             class="audio-level-button"
-            class:track-disabled={!$audioDesired}
+            class:track-disabled={!$mediaDesired.audio}
             on:click={toggleAudioDesired}>
-            {#if $audioDesired}
+            {#if $mediaDesired.audio}
               <AudioLevelIndicator>
                 <icon class="audio-level-icon">
-                  <AudioIcon enabled={$audioDesired} />
+                  <AudioIcon enabled={$mediaDesired.audio} />
                 </icon>
               </AudioLevelIndicator>
             {:else}
               <icon class="audio-level-icon">
-                <AudioIcon enabled={$audioDesired} />
+                <AudioIcon enabled={$mediaDesired.audio} />
               </icon>
             {/if}
           </button>
@@ -126,10 +127,7 @@
     </VideoBox>
 
     {#if $permissionWouldBeGranted === false}
-      <ContinueButton
-        on:click={() => {
-          $permissionRevision += 1;
-        }}>
+      <ContinueButton on:click={requestPermission}>
         {#if $permissionBlocked}
           {_("Try Again", "try_again")}
         {:else}

@@ -4,12 +4,8 @@
   import groupBy from "./groupBy";
   import Select from "./Select";
 
-  import {
-    permissionRevision,
-    mediaDevices,
-    defaultDeviceIds,
-    selectedDeviceIds,
-  } from "../stores";
+  import { mediaDevices, defaultDeviceIds, selectedDeviceIds } from "../stores";
+  import { requestPermission } from "../stores/permissionRevision";
 
   import {
     IconAudioEnabled,
@@ -30,7 +26,7 @@
   function handleSelect(option, kind) {
     if (option.value !== $selectedDeviceIds[kind]) {
       $selectedDeviceIds[kind] = option.value;
-      $permissionRevision++;
+      requestPermission();
       dispatch("changed", { kind, value: option.value });
     }
     dispatch("selected", { kind, value: option.value });

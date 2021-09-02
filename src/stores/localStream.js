@@ -2,8 +2,7 @@ import { derived } from "svelte/store";
 
 import MediaDevices from "media-devices";
 
-import { audioDesired } from "./audioDesired";
-import { videoDesired } from "./videoDesired";
+import { mediaOnceDesired } from "./mediaDesired";
 
 import { audioConstraints } from "./audioConstraints";
 import { videoConstraints } from "./videoConstraints";
@@ -22,8 +21,7 @@ export const localStream = derived(
   [
     permissionRevision,
     permissionWouldBeGranted,
-    audioDesired,
-    videoDesired,
+    mediaOnceDesired,
     audioConstraints,
     videoConstraints,
     selectedDeviceIds,
@@ -32,35 +30,37 @@ export const localStream = derived(
     [
       $permissionRevision,
       $permissionWouldBeGranted,
-      $audioDesired,
-      $videoDesired,
+      $mediaOnceDesired,
       $audioConstraints,
       $videoConstraints,
       $selectedDeviceIds,
     ],
     set
   ) => {
+    const audio = $mediaOnceDesired.audio ? { ...$audioConstraints } : false;
+    if (audio && $selectedDeviceIds.audioinput) {
+      audio.deviceId = { exact: $selectedDeviceIds.audioinput };
+    }
+
+    const video = $mediaOnceDesired.video ? { ...$videoConstraints } : false;
+    if (video && $selectedDeviceIds.videoinput) {
+      video.deviceId = { exact: $selectedDeviceIds.videoinput };
+    }
+
     if (
-      $permissionRevision > gumRevision ||
-      ($permissionRevision === 0 && $permissionWouldBeGranted && !grantedOnce)
+      ($permissionRevision > gumRevision ||
+        ($permissionRevision === 0 &&
+          $permissionWouldBeGranted &&
+          !grantedOnce)) &&
+      (audio || video)
     ) {
-      const audio = $audioDesired ? { ...$audioConstraints } : false;
-      if (audio && $selectedDeviceIds.audioinput) {
-        audio.deviceId = { exact: $selectedDeviceIds.audioinput };
-      }
-
-      const video = $videoDesired ? { ...$videoConstraints } : false;
-      if (video && $selectedDeviceIds.videoinput) {
-        video.deviceId = { exact: $selectedDeviceIds.videoinput };
-      }
-
-      if (audio || video) {
-        gumRevision = $permissionRevision;
-        requestMediaPermission({
-          audio,
-          video,
-          previousStream,
-        }).then((stream) => {
+      gumRevision = $permissionRevision;
+      requestMediaPermission({
+        audio,
+        video,
+        previousStream,
+      }).then(
+        (stream) => {
           set(stream);
           if (stream) {
             grantedOnce = true;
@@ -69,8 +69,12 @@ export const localStream = derived(
           } else {
             permissionBlocked.update((value) => value + 1);
           }
-        });
-      }
+        },
+        (err) => {
+          console.error("getUserMedia request failed", err);
+          set(null);
+        }
+      );
     }
   },
   null
@@ -93,7 +97,7 @@ async function requestMediaPermission({
     // For Firefox, we need to disable the previously selected Mic, else
     // "DOMException: Concurrent mic process limit."
     if (err.name === "NotReadableError" && previousStream) {
-      previousStream.getTracks().forEach(track => track.stop());
+      previousStream.getTracks().forEach((track) => track.stop());
       previousStream = null;
       return await requestMediaPermission({ audio, video });
     } else if (audio && video) {

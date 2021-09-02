@@ -1,5 +1,4 @@
-export { audioDesired } from "./audioDesired";
-export { videoDesired } from "./videoDesired";
+export { mediaDesired } from "./mediaDesired";
 
 export { audioTrack } from "./audioTrack";
 export { videoTrack } from "./videoTrack";
