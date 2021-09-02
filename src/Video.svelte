@@ -18,8 +18,8 @@
   let eventuallyVisible = visible;
 
   afterUpdate(() => {
-    if (cachedStream !== stream) {
-      videoElement.srcObject = stream;
+    if (stream && cachedStream !== stream) {
+      videoElement.srcObject = stream.clone();
       cachedStream = stream;
       eventuallyVisible = true;
     }
