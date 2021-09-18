@@ -42,9 +42,6 @@ Make it easy for web users to set up their mic & camera.
 - Shows visual cue (shaking) when permission was denied, and user is requesting permission again, but browser state will no longer allow permissions dialog to be shown
 - Works on Firefox, Chrome, Safari, Edge
 - 51kb minified (including Svelte); 12kb brotli compressed (also including Svelte)
-
-## TODO
-
 - Advanced device configuration (e.g. pick among multiple microphones, cameras, or speakers)
 
 ## Usage
@@ -58,8 +55,8 @@ Here's an example in Svelte:
 
 <main>
   <VideoMirror on:done={({ detail }) => {
-    const { audio, video, stream, devices} = detail;
-    console.log('setup complete!', audio, video, stream, devices);
+    const { stream, devices} = detail;
+    console.log('setup complete!', stream, devices);
   } />
 </main>
 ```

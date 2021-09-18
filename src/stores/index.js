@@ -1,4 +1,5 @@
 export { mediaDesired } from "./mediaDesired";
+export { mediaGrantedOnce } from "./mediaGrantedOnce";
 
 export { audioTrack } from "./audioTrack";
 export { videoTrack } from "./videoTrack";
@@ -9,8 +10,8 @@ export { videoConstraints } from "./videoConstraints";
 export { localStream } from "./localStream";
 export { localAudioLevel } from "./localAudioLevel";
 
+export { gumRequestNumber } from "./gumRequestNumber";
 export { permissionBlocked } from "./permissionBlocked";
-export { permissionRevision } from "./permissionRevision";
 export { permissionWouldBeGranted } from "./permissionWouldBeGranted";
 
 export { mediaDevices } from "./mediaDevices";

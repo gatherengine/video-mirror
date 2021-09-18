@@ -7,7 +7,7 @@ export { default as Video } from "./Video.svelte";
 export { default as VideoIcon } from "./VideoIcon.svelte";
 export { default as AudioIcon } from "./AudioIcon.svelte";
 export { default as AudioLevelIndicator } from "./AudioLevelIndicator.svelte";
-export { requestPermission } from "./stores/permissionRevision";
+export { requestPermission } from "./requestPermission";
 
 // Export stores
 export * from "./stores";

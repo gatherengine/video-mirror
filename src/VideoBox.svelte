@@ -20,7 +20,11 @@
 
 <container class:opaque={!opaque}>
   {#if enabled}
-    <Video stream={$localStream} mirror={true} class="rounded-video" />
+    <Video
+      stream={$localStream}
+      visible={true}
+      mirror={true}
+      class="rounded-video" />
   {/if}
   <div
     class:opaque

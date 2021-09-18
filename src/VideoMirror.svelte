@@ -2,18 +2,20 @@
   import { createEventDispatcher } from "svelte";
 
   import {
-    mediaDesired,
+    gumRequestNumber,
     localStream,
+    mediaDesired,
     mediaDevices,
+    mediaGrantedOnce,
     permissionBlocked,
     permissionWouldBeGranted,
   } from "./stores";
-  import { requestPermission } from "./stores/permissionRevision";
 
   import VideoBox from "./VideoBox.svelte";
   import AudioLevelIndicator from "./AudioLevelIndicator.svelte";
   import ContinueButton from "./ContinueButton.svelte";
   import DeviceSelector from "./DeviceSelector";
+  import { requestPermission } from "./requestPermission";
 
   import VideoIcon from "./VideoIcon.svelte";
   import AudioIcon from "./AudioIcon.svelte";
@@ -40,10 +42,21 @@
 
   const toggleAdvancedSettings = () => (advancedSettings = !advancedSettings);
 
+  // If we can't even prompt for permission, and visual feedback already
+  // indicates red, shake the video to emphasize the problem
   $: if ($permissionBlocked) {
-    // Visual feedback already indicates red,
-    // so shake it to emphasize error
     videoBox.shake();
+  }
+
+  // Make a getUserMedia request automatically if it would be granted
+  // without prompting the user
+  $: if (
+    $permissionWouldBeGranted &&
+    $gumRequestNumber == 0 &&
+    !$mediaGrantedOnce.audio &&
+    !$mediaGrantedOnce.video
+  ) {
+    $gumRequestNumber = 1;
   }
 
   const handleDone = () => {
@@ -105,8 +118,11 @@
         </div>
       {/if}
     </VideoBox>
-    <ContinueButton on:click={handleDone}
-      >{_("Continue", "continue")}</ContinueButton>
+
+    <ContinueButton on:click={handleDone}>
+      {_("Continue", "continue")}
+    </ContinueButton>
+
     {#if advancedSettings}
       <div class="advanced-settings">
         <DeviceSelector on:changed={handleDeviceSelected} />

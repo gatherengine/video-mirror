@@ -5,7 +5,7 @@
   import Select from "./Select";
 
   import { mediaDevices, defaultDeviceIds, selectedDeviceIds } from "../stores";
-  import { requestPermission } from "../stores/permissionRevision";
+  import { requestPermission } from "../requestPermission";
 
   import {
     IconAudioEnabled,
