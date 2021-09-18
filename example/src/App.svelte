@@ -1,5 +1,6 @@
 <script>
   import { VideoMirror } from "video-mirror";
+  import SidePanel from "./SidePanel.svelte";
 
   // i18n or alternative text supported via 'tr' translations object
   let tr = {
@@ -20,6 +21,8 @@
   {/if}
   <div>Additional Instructions</div>
 </main>
+
+<SidePanel />
 
 <style>
   main {
