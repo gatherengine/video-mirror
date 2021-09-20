@@ -1,31 +1,17 @@
 import { derived } from "svelte/store";
 import { localStream } from "./localStream";
-import hark from "hark";
-
-let harkInstance;
-let audioVolume = 0;
+import audioActivity from "audio-activity";
 
 export const localAudioLevel = derived(
   [localStream],
   ([$stream], set) => {
+    let activity;
     if ($stream && $stream.getAudioTracks().length) {
-      harkInstance = hark($stream, { play: false });
-
-      harkInstance.on("volume_change", (dBs, threshold) => {
-        let volume = Math.pow(10, dBs / 120);
-        if (volume >= 1 || isNaN(volume)) volume = 0;
-        if (volume !== audioVolume) {
-          set(volume);
-          audioVolume = volume;
-        }
-      });
+      activity = audioActivity($stream, set);
     }
 
     return () => {
-      if (harkInstance) {
-        harkInstance.stop();
-        harkInstance = null;
-      }
+      if (activity) activity.destroy();
     };
   },
   0

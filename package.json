@@ -27,7 +27,7 @@
     "dist"
   ],
   "dependencies": {
-    "hark": "^1.2.3",
-    "media-devices": "^0.2.0"
+    "audio-activity": "1.0.0",
+    "media-devices": "0.2.0"
   }
 }
