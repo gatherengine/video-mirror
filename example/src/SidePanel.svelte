@@ -4,7 +4,6 @@
     localStream,
     mediaDesired,
     mediaDevices,
-    mediaGrantedOnce,
     permissionBlocked,
     permissionWouldBeGranted,
     selectedDeviceIds,
@@ -44,8 +43,6 @@
         <dd>{$mediaDesired.audio}</dd>
         <dt>track?</dt>
         <dd>{$audioTrack !== null}</dd>
-        <dt>ever granted?</dt>
-        <dd>{$mediaGrantedOnce.audio}</dd>
         <dt>volume</dt>
         <dd>{($localAudioLevel || 0).toFixed(2)}</dd>
         <dt>audioConstraints</dt>
@@ -58,8 +55,6 @@
         <dd>{$mediaDesired.video}</dd>
         <dt>track?</dt>
         <dd>{$videoTrack !== null}</dd>
-        <dt>ever granted?</dt>
-        <dd>{$mediaGrantedOnce.video}</dd>
         <dt>videoConstraints</dt>
         <dd>{JSON.stringify($videoConstraints, null, 2)}</dd>
       </dl>
@@ -107,7 +102,7 @@
     background-color: #666;
     font-weight: bold;
     text-align: center;
-    
+
     padding: 8px 0px;
     margin-bottom: 8px;
   }

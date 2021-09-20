@@ -1,5 +1,4 @@
 export { mediaDesired } from "./mediaDesired";
-export { mediaGrantedOnce } from "./mediaGrantedOnce";
 
 export { audioTrack } from "./audioTrack";
 export { videoTrack } from "./videoTrack";

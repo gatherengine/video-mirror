@@ -6,7 +6,6 @@
     localStream,
     mediaDesired,
     mediaDevices,
-    mediaGrantedOnce,
     permissionBlocked,
     permissionWouldBeGranted,
   } from "./stores";
@@ -50,12 +49,7 @@
 
   // Make a getUserMedia request automatically if it would be granted
   // without prompting the user
-  $: if (
-    $permissionWouldBeGranted &&
-    $gumRequestNumber == 0 &&
-    !$mediaGrantedOnce.audio &&
-    !$mediaGrantedOnce.video
-  ) {
+  $: if ($permissionWouldBeGranted && $gumRequestNumber == 0) {
     $gumRequestNumber = 1;
   }
 

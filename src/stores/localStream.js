@@ -3,7 +3,6 @@ import { derived, get } from "svelte/store";
 import MediaDevices from "media-devices";
 
 import { mediaDesired } from "./mediaDesired";
-import { mediaGrantedOnce } from "./mediaGrantedOnce";
 
 import { audioConstraints } from "./audioConstraints";
 import { videoConstraints } from "./videoConstraints";
@@ -15,6 +14,7 @@ import { selectedDeviceIds } from "./selectedDeviceIds";
 
 let gumRevision = 0;
 let previousStream = null;
+const mediaGrantedOnce = { audio: false, video: false };
 
 export const localStream = derived(
   [
@@ -35,7 +35,7 @@ export const localStream = derived(
     set
   ) => {
     const audio =
-      $mediaDesired.audio || get(mediaGrantedOnce).audio
+      $mediaDesired.audio || mediaGrantedOnce.audio
         ? { ...$audioConstraints }
         : false;
     if (audio && $selectedDeviceIds.audioinput) {
@@ -43,21 +43,21 @@ export const localStream = derived(
     }
 
     const video =
-      $mediaDesired.video || get(mediaGrantedOnce).video
+      $mediaDesired.video || mediaGrantedOnce.video
         ? { ...$videoConstraints }
         : false;
     if (video && $selectedDeviceIds.videoinput) {
       video.deviceId = { exact: $selectedDeviceIds.videoinput };
     }
 
-    if (
-      ($gumRequestNumber > gumRevision) &&
-      (audio || video)
-    ) {
+    if ($gumRequestNumber > gumRevision && (audio || video)) {
       gumRevision = $gumRequestNumber;
       requestMediaPermission({ audio, video }).then(
         (stream) => {
-          if (!stream) {
+          if (stream) {
+            if (stream.getAudioTracks()[0]) mediaGrantedOnce.audio = true;
+            if (stream.getVideoTracks()[0]) mediaGrantedOnce.video = true;
+          } else {
             console.warn("getUserMedia request blocked");
             permissionBlocked.update((value) => value + 1);
           }
