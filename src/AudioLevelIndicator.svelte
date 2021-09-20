@@ -4,15 +4,19 @@
 
   // Animation springs
   let audioLevelSpring = spring(0, {
-    stiffness: 0.3,
-    damping: 0.8,
+    stiffness: 0.4,
+    damping: 0.6,
   });
 
-  $: audioLevelSpring.set($localAudioLevel);
+  $: {
+    let x = $localAudioLevel;
+    let y = Math.log10(x + 1/10) + 1;
+    audioLevelSpring.set(y);
+  }
 </script>
 
 <indicator
-  style="--audio-level:{($audioLevelSpring * 100).toFixed(2) + '%'}"
+  style="--audio-level:{((1 - $audioLevelSpring) * 100).toFixed(2) + '%'}"
   class={$$props.class}>
   <slot />
 </indicator>
@@ -26,13 +30,15 @@
     content: " ";
     display: block;
     position: absolute;
+
     width: 100%;
-    height: var(--audio-level);
+    height: 100%;
     max-height: 100%;
     bottom: 0;
     left: 0;
     background-color: rgba(70, 180, 74, 0.7);
-    border-bottom-right-radius: 8px;
-    border-bottom-left-radius: 8px;
+    /* border: 1px solid rgba(70, 180, 74, 0.7); */
+    border-radius: 8px;
+    clip-path: inset(var(--audio-level) -0.5px -0.5px -0.5px);
   }
 </style>
