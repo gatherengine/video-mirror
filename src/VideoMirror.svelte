@@ -106,7 +106,10 @@
               </icon>
             {/if}
           </button>
-          <button class="corner" on:click={toggleAdvancedSettings}>
+          <button
+            class="corner"
+            class:inverted={advancedSettings}
+            on:click={toggleAdvancedSettings}>
             <icon><IconSettings /></icon>
           </button>
         </div>
@@ -218,6 +221,16 @@
     width: var(--size, 32px);
     height: var(--size, 32px);
     color: white;
+  }
+
+  button.inverted {
+    background-color: #eee;
+  }
+  button.inverted:hover {
+    background-color: #fff;
+  }
+  button.inverted icon {
+    color: rgba(33, 33, 33, 0.5);
   }
 
   button-placeholder {
