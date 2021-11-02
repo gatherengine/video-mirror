@@ -7,8 +7,8 @@
     permissionBlocked,
     permissionWouldBeGranted,
     selectedDeviceIds,
-    audioTrack,
-    videoTrack,
+    localAudioTrack,
+    localVideoTrack,
     audioConstraints,
     videoConstraints,
     localAudioLevel,
@@ -42,7 +42,7 @@
         <dt>desired?</dt>
         <dd>{$mediaDesired.audio}</dd>
         <dt>track?</dt>
-        <dd>{$audioTrack !== null}</dd>
+        <dd>{$localAudioTrack !== null}</dd>
         <dt>volume</dt>
         <dd>{($localAudioLevel || 0).toFixed(2)}</dd>
         <dt>audioConstraints</dt>
@@ -54,7 +54,7 @@
         <dt>desired?</dt>
         <dd>{$mediaDesired.video}</dd>
         <dt>track?</dt>
-        <dd>{$videoTrack !== null}</dd>
+        <dd>{$localVideoTrack !== null}</dd>
         <dt>videoConstraints</dt>
         <dd>{JSON.stringify($videoConstraints, null, 2)}</dd>
       </dl>
