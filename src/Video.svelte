@@ -1,39 +1,33 @@
 <script>
   import { afterUpdate } from "svelte";
+  import { attach } from "./attach";
 
   export let id = "video";
-  export let stream;
-  export let autoPlay = true;
+  // export let stream;
+  export let track;
   export let fullscreen = false;
   // iOS needs this so the video doesn't automatically play full screen
-  export let playsInline = true;
   export let mirror = false;
   export let muted = true;
   export let round = false;
   export let visible = false;
 
   let videoElement;
-  let cachedStream;
   let initiallyVisible = visible;
   let eventuallyVisible = visible;
 
   afterUpdate(() => {
-    if (stream && cachedStream !== stream) {
-      videoElement.srcObject = stream.clone();
-      cachedStream = stream;
+    if (track) {
+      if (track.attach) {
+        track.attach(videoElement);
+      } else {
+        attach(videoElement, track);
+      }
       eventuallyVisible = true;
     }
   });
 </script>
 
-<!-- Note:
-  A number of video attributes are HTML "Boolean attributes", so to prevent the 
-  attribute key from being incorrectly rendered, Svelte needs the value to be
-  `undefined` when false:
-  - autoplay
-  - playsinline
-  - disablepictureinpicture
--->
 <!-- svelte-ignore a11y-media-has-caption -->
 <video
   bind:this={videoElement}
@@ -45,9 +39,8 @@
   class:eventuallyVisible={initiallyVisible ? false : eventuallyVisible}
   {id}
   muted={muted ? true : undefined}
-  autoPlay={autoPlay ? true : undefined}
-  playsInline={playsInline ? true : undefined}
-  disablePictureInPicture="" />
+  disablePictureInPicture=""
+/>
 
 <style>
   video {

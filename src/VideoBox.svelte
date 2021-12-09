@@ -1,6 +1,6 @@
 <script>
   import { spring } from "svelte/motion";
-  import { localStream } from "./stores/localStream";
+  import { localVideoTrack } from "./stores/localVideoTrack";
   import Video from "./Video.svelte";
 
   export let blocked = false;
@@ -21,7 +21,7 @@
 <container class:opaque={!opaque}>
   {#if enabled}
     <Video
-      stream={$localStream}
+      track={$localVideoTrack}
       visible={true}
       mirror={true}
       class="rounded-video" />
