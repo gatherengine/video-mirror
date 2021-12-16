@@ -69,12 +69,14 @@
   class="select"
   tabindex="0"
   on:keydown={handleKeypress}
-  on:blur={cancelPopup}>
+  on:blur={cancelPopup}
+>
   <div
     bind:this={selectRowEl}
     class="select-row"
     class:open={popupVisible}
-    on:click={togglePopup}>
+    on:click={togglePopup}
+  >
     {#if icon}
       <div class="icon"><svelte:component this={icon} /></div>
     {/if}
@@ -89,7 +91,8 @@
           class:hover={hoverIndex === i}
           data-value={option.value}
           on:click={() => makeSelection(option)}
-          on:mouseenter={() => (hoverIndex = i)}>
+          on:mouseenter={() => (hoverIndex = i)}
+        >
           {option.label}
         </div>
       {/each}
@@ -128,7 +131,10 @@
     padding: 8px;
   }
   .option.hover {
-    background-color: rgba(230, 230, 230, 1);
+    background-color: var(
+      --select-hover-bg-color,
+      var(--select-bg-color, rgba(230, 230, 230, 1))
+    );
   }
 
   .icon {
@@ -143,7 +149,7 @@
   }
 
   .down-arrow {
-    border: solid black;
+    border: solid var(--select-fg-color, black);
     border-width: 0 2px 2px 0;
     display: inline-block;
     padding: 3px;
@@ -156,8 +162,9 @@
     display: flex;
     flex-direction: column;
 
-    background-color: white;
-    border: 1px solid rgba(180, 180, 180, 1);
+    color: var(--select-fg-color, black);
+    background-color: var(--select-bg-color, white);
+    border: 1px solid var(--select-border-color, rgba(180, 180, 180, 1));
     border-radius: 8px;
     margin-left: -1px;
     padding: 8px;
