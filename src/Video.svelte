@@ -1,9 +1,7 @@
 <script>
-  import { afterUpdate } from "svelte";
-  import { attach } from "./attach";
+  import { afterUpdate, onMount } from "svelte";
+  import { attach } from "./mediaAttachment";
 
-  export let id = "video";
-  // export let stream;
   export let track;
   export let fullscreen = false;
   // iOS needs this so the video doesn't automatically play full screen
@@ -15,15 +13,18 @@
   let videoElement;
   let initiallyVisible = visible;
   let eventuallyVisible = visible;
+  let attachedTrack = null;
 
   afterUpdate(() => {
-    if (track) {
+    if (track && attachedTrack !== track) {
+      console.log("afterUpdate attach track", videoElement);
       if (track.attach) {
         track.attach(videoElement);
       } else {
         attach(videoElement, track);
       }
       eventuallyVisible = true;
+      attachedTrack = track;
     }
   });
 </script>
@@ -37,7 +38,6 @@
   class:round
   class:initiallyVisible={visible}
   class:eventuallyVisible={initiallyVisible ? false : eventuallyVisible}
-  {id}
   muted={muted ? true : undefined}
   disablePictureInPicture=""
 />

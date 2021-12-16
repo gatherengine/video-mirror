@@ -1,6 +1,6 @@
 <script>
   import { afterUpdate } from "svelte";
-  import { attach } from "./attach";
+  import { attach } from "./mediaAttachment";
 
   export let id = "video";
   export let track;
@@ -9,15 +9,16 @@
   export let volume = 1;
 
   let audioElement;
+  let attachedTrack = null;
 
   afterUpdate(() => {
-    if (track) {
+    if (track && track !== attachedTrack) {
       if (track.attach) {
         track.attach(audioElement);
       } else {
         attach(audioElement, track);
       }
-      eventuallyVisible = true;
+      attachedTrack = track;
     }
     audioElement.volume = volume;
   });
