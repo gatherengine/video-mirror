@@ -1,7 +1,7 @@
 {
   "name": "video-mirror",
   "svelte": "src/index.js",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "module": "dist/index.mjs",
   "main": "dist/index.js",
   "license": "MIT",
@@ -28,6 +28,7 @@
   ],
   "dependencies": {
     "audio-activity": "1.0.0",
-    "media-devices": "0.2.0"
+    "media-devices": "0.2.0",
+    "svelte-local-storage-store": "^0.1.6"
   }
 }
