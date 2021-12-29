@@ -19,7 +19,8 @@
   ],
   "dependencies": {
     "audio-activity": "1.0.0",
-    "media-devices": "0.2.0"
+    "media-devices": "0.2.0",
+    "raj": "^1.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.1.0",
