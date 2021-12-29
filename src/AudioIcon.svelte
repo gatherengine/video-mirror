@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { IconAudioEnabled, IconAudioDisabled } from "./icons";
 
   export let enabled = true;

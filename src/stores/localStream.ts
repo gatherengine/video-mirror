@@ -39,7 +39,7 @@ export const localStream = derived(
         ? { ...$audioConstraints }
         : false;
     if (audio && $selectedDeviceIds.audioinput) {
-      audio.deviceId = { exact: $selectedDeviceIds.audioinput };
+      (audio as any).deviceId = { exact: $selectedDeviceIds.audioinput };
     }
 
     const video =
@@ -47,12 +47,12 @@ export const localStream = derived(
         ? { ...$videoConstraints }
         : false;
     if (video && $selectedDeviceIds.videoinput) {
-      video.deviceId = { exact: $selectedDeviceIds.videoinput };
+      (video as any).deviceId = { exact: $selectedDeviceIds.videoinput };
     }
 
     if ($gumRequestNumber > get(gumRevision) && (audio || video)) {
       gumRevision.set($gumRequestNumber);
-      requestMediaPermission({ audio, video }).then(
+      requestMediaPermission({ audio: audio as boolean, video: video as boolean }).then(
         (stream) => {
           if (stream) {
             if (stream.getAudioTracks()[0]) mediaGrantedOnce.audio = true;

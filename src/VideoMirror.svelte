@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
 
   import {
@@ -138,7 +138,7 @@
       </div>
     {/if}
   {:else}
-    <VideoBox bind:this={videoBox} blocked={$permissionBlocked} opaque={true}>
+    <VideoBox bind:this={videoBox} blocked={$permissionBlocked > 0} opaque={true}>
       <div class="centered-image">
         <icon style="--size:75px"><IconVideoDisabled /></icon>
       </div>

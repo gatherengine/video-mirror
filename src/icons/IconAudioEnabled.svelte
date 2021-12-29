@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import BaseSvg from "./BaseSvg.svelte";
 </script>
 

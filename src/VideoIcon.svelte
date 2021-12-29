@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { IconVideoEnabled, IconVideoDisabled } from "./icons";
 
   export let enabled = true;

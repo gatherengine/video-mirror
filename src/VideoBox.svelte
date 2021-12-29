@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { spring } from "svelte/motion";
   import { localVideoTrack } from "./stores/localVideoTrack";
   import Video from "./Video.svelte";

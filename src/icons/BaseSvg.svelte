@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   export let title = null;
   export let viewBox;
 </script>
