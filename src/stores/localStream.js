@@ -9,10 +9,10 @@ import { videoConstraints } from "./videoConstraints";
 
 import { permissionBlocked } from "./permissionBlocked";
 import { gumRequestNumber } from "./gumRequestNumber";
+import { gumRevision } from "./gumRevision";
 
 import { selectedDeviceIds } from "./selectedDeviceIds";
 
-let gumRevision = 0;
 let previousStream = null;
 const mediaGrantedOnce = { audio: false, video: false };
 
@@ -50,8 +50,8 @@ export const localStream = derived(
       video.deviceId = { exact: $selectedDeviceIds.videoinput };
     }
 
-    if ($gumRequestNumber > gumRevision && (audio || video)) {
-      gumRevision = $gumRequestNumber;
+    if ($gumRequestNumber > get(gumRevision) && (audio || video)) {
+      gumRevision.set($gumRequestNumber);
       requestMediaPermission({ audio, video }).then(
         (stream) => {
           if (stream) {

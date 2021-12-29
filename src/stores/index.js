@@ -9,6 +9,7 @@ export { localAudioTrack } from "./localAudioTrack";
 export { localVideoTrack } from "./localVideoTrack";
 
 export { gumRequestNumber } from "./gumRequestNumber";
+export { gumRevision } from "./gumRevision";
 export { permissionBlocked } from "./permissionBlocked";
 export { permissionWouldBeGranted } from "./permissionWouldBeGranted";
 

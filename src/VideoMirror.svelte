@@ -1,8 +1,9 @@
 <script>
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onMount } from "svelte";
 
   import {
     gumRequestNumber,
+    gumRevision,
     localStream,
     mediaDesired,
     mediaDevices,
@@ -47,13 +48,16 @@
     videoBox.shake();
   }
 
-  // Make a getUserMedia request automatically if it would be granted
-  // without prompting the user
-  $: if ($permissionWouldBeGranted && $gumRequestNumber == 0) {
-    $gumRequestNumber = 1;
-  }
-
   const handleDone = () => {
+    if (
+      $localStream &&
+      (($localStream.getAudioTracks()[0] && $mediaDesired.audio) ||
+        ($localStream.getVideoTracks()[0] && $mediaDesired.video))
+    ) {
+      localStorage.setItem("video-mirror.granted", "true");
+    } else {
+      localStorage.setItem("video-mirror.granted", "false");
+    }
     dispatch("done", {
       devices: $mediaDevices,
       stream: $localStream,
@@ -63,6 +67,11 @@
   const handleDeviceSelected = ({ detail }) => {
     dispatch("device-selected", detail);
   };
+
+  onMount(() => {
+    $gumRequestNumber = $permissionWouldBeGranted ? 1 : 0;
+    $gumRevision = 0;
+  });
 </script>
 
 <mirror>
@@ -87,13 +96,15 @@
         <div class="button-bar">
           <button
             on:click={toggleVideoDesired}
-            class:track-disabled={!$mediaDesired.video}>
+            class:track-disabled={!$mediaDesired.video}
+          >
             <icon><VideoIcon enabled={$mediaDesired.video} /></icon>
           </button>
           <button
             class="audio-level-button"
             class:track-disabled={!$mediaDesired.audio}
-            on:click={toggleAudioDesired}>
+            on:click={toggleAudioDesired}
+          >
             {#if $mediaDesired.audio}
               <AudioLevelIndicator>
                 <icon class="audio-level-icon">
@@ -109,7 +120,8 @@
           <button
             class="corner"
             class:inverted={advancedSettings}
-            on:click={toggleAdvancedSettings}>
+            on:click={toggleAdvancedSettings}
+          >
             <icon><IconSettings /></icon>
           </button>
         </div>
