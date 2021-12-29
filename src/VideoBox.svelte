@@ -1,8 +1,8 @@
 <script lang="ts">
   import { spring } from "svelte/motion";
-  import { localVideoTrack } from "./stores/localVideoTrack";
   import Video from "./Video.svelte";
 
+  export let track = null;
   export let blocked = false;
   export let opaque = false;
   export let enabled = true;
@@ -20,17 +20,14 @@
 
 <container class:opaque={!opaque}>
   {#if enabled}
-    <Video
-      track={$localVideoTrack}
-      visible={true}
-      mirror={true}
-      class="rounded-video" />
+    <Video {track} visible={true} mirror={true} class="rounded-video" />
   {/if}
   <div
     class:opaque
     class:blocked
     class="video-stack overlay"
-    style="transform: translate({$videoPositionSpring}px, 0)">
+    style="transform: translate({$videoPositionSpring}px, 0)"
+  >
     <slot />
   </div>
 </container>

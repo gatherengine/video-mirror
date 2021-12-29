@@ -1,16 +1,16 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
+  import { createEventDispatcher } from "svelte";
 
-  export let enabled = true
+  export let enabled = true;
 
-  let dispatch = createEventDispatcher()
+  let dispatch = createEventDispatcher();
 </script>
 
 <button
   class="continue"
   class:disabled={!enabled}
   on:click={() => {
-    dispatch('click')
+    dispatch("click");
   }}
 >
   <slot>Continue</slot>
@@ -19,7 +19,7 @@
 <style>
   .continue {
     display: block;
-    margin: 32px auto 8px auto;
+    margin: 0 auto;
     border: 0;
     background-color: #ffa833;
     color: #643;

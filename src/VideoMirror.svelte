@@ -1,254 +1,145 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from "svelte";
+  import { createEventDispatcher } from "svelte";
+  import ProgramView from "./ProgramView.svelte";
+  import Setup from "./Setup.svelte";
+  import type { Program, Dispatch } from "./program";
+  import { getUserMedia } from "./commands/getUserMedia";
 
-  import {
-    gumRequestNumber,
-    gumRevision,
-    localStream,
-    mediaDesired,
-    mediaDevices,
-    permissionBlocked,
-    permissionWouldBeGranted,
-  } from "./stores";
+  export let videoDesired = true;
+  export let audioDesired = true;
 
-  import VideoBox from "./VideoBox.svelte";
-  import AudioLevelIndicator from "./AudioLevelIndicator.svelte";
-  import ContinueButton from "./ContinueButton.svelte";
-  import DeviceSelector from "./DeviceSelector";
-  import { requestPermission } from "./requestPermission";
+  export let videoDeviceId = null;
+  export let audioInputDeviceId = null;
+  export let audioOutputDeviceId = null;
 
-  import VideoIcon from "./VideoIcon.svelte";
-  import AudioIcon from "./AudioIcon.svelte";
-  import { IconSettings, IconVideoDisabled } from "./icons";
+  export let videoConstraints: MediaTrackConstraints = {
+    facingMode: "user",
+  };
+  export let audioConstraints: MediaTrackConstraints = {
+    autoGainControl: false,
+    echoCancellation: true,
+    noiseSuppression: true,
+    channelCount: 2,
+    sampleRate: 48000,
+    sampleSize: 16,
+  };
 
-  export let tr = {};
-  export let showButtonBar = true;
+  const dispatchSvelte = createEventDispatcher();
 
-  // i18n translations available, if passed in
-  const _ = (phrase, key) => tr[key] || tr[phrase] || phrase;
-
-  const dispatch = createEventDispatcher();
-
-  // Local state
-  let advancedSettings = false;
-
-  let videoBox = null;
-
-  const toggleAudioDesired = () =>
-    mediaDesired.update((state) => ({ ...state, audio: !state.audio }));
-
-  const toggleVideoDesired = () =>
-    mediaDesired.update((state) => ({ ...state, video: !state.video }));
-
-  const toggleAdvancedSettings = () => (advancedSettings = !advancedSettings);
-
-  // If we can't even prompt for permission, and visual feedback already
-  // indicates red, shake the video to emphasize the problem
-  $: if ($permissionBlocked) {
-    videoBox.shake();
+  // Create a single effect from a list of effects
+  function batch(commands) {
+    return function (dispatch: Dispatch) {
+      for (var i = 0; i < commands.length; i++) {
+        const effect = commands[i];
+        effect(dispatch);
+      }
+    };
   }
 
-  const handleDone = () => {
-    if (
-      $localStream &&
-      (($localStream.getAudioTracks()[0] && $mediaDesired.audio) ||
-        ($localStream.getVideoTracks()[0] && $mediaDesired.video))
-    ) {
-      localStorage.setItem("video-mirror.granted", "true");
-    } else {
-      localStorage.setItem("video-mirror.granted", "false");
-    }
-    dispatch("done", {
-      devices: $mediaDevices,
-      stream: $localStream,
-    });
-  };
+  const storedGrantedKey = "video-mirror.granted";
 
-  const handleDeviceSelected = ({ detail }) => {
-    dispatch("device-selected", detail);
-  };
-
-  onMount(() => {
-    $gumRequestNumber = $permissionWouldBeGranted ? 1 : 0;
-    $gumRevision = 0;
-  });
+  function createApp(props): Program {
+    const permissionWouldBeGranted =
+      localStorage.getItem(storedGrantedKey) === "true";
+    return {
+      init: [
+        {
+          videoDesired,
+          audioDesired,
+          videoDeviceId,
+          audioInputDeviceId,
+          audioOutputDeviceId,
+          videoConstraints,
+          audioConstraints,
+          permissionBlocked: false,
+          permissionWouldBeGranted,
+        },
+        permissionWouldBeGranted
+          ? getUserMedia({ audio: audioConstraints, video: videoConstraints })
+          : null,
+      ],
+      update(msg, state) {
+        if (msg.id === "getUserMedia") {
+          return [
+            { ...state, shake: msg.shake },
+            getUserMedia({ audio: audioConstraints, video: videoConstraints }),
+          ];
+        } else if (msg.id === "gotUserMedia") {
+          return [
+            { ...state, stream: msg.stream, permissionBlocked: false },
+            (dispatch) => {
+              localStorage.setItem(storedGrantedKey, "true");
+            },
+          ];
+        } else if (msg.id === "userMediaBlocked") {
+          const effects = [
+            // If we are blocked this time, don't try to automatically get permission next time
+            (dispatch) => localStorage.setItem(storedGrantedKey, "false"),
+          ];
+          // If this is the 2nd+ time we've been blocked, shake the red/blank video rectangle
+          if (state.permissionBlocked && state.shake)
+            effects.push((dispatch) => state.shake());
+          return [
+            { ...state, stream: null, permissionBlocked: true },
+            batch(effects),
+          ];
+        } else if (msg.id === "selectDevice") {
+          const newState = { ...state };
+          if (msg.kind === "audioinput") {
+            newState.audioInputDeviceId = msg.deviceId;
+            newState.audioConstraints.deviceId = msg.deviceId;
+          } else if (msg.kind === "audiooutput") {
+            newState.audioOutputDeviceId = msg.deviceId;
+            // TODO: provide a way to test audio output device
+          } else if (msg.kind === "videoinput") {
+            newState.videoDeviceId = msg.deviceId;
+            newState.videoConstraints.deviceId = msg.deviceId;
+          } else {
+            throw new Error(`unknown device kind: ${msg.kind}`);
+          }
+          return [
+            newState,
+            getUserMedia({
+              audio: newState.audioConstraints,
+              video: newState.videoConstraints,
+            }),
+          ];
+        } else if (msg.id === "toggle") {
+          return [{ ...state, [msg.property]: !state[msg.property] }];
+        } else if (msg.id === "done") {
+          dispatchSvelte("done", state);
+          return [state];
+        } else {
+          return [state];
+        }
+      },
+      view(state, dispatch) {
+        return [
+          Setup,
+          {
+            stream: state.stream,
+            audioDesired: state.audioDesired,
+            videoDesired: state.videoDesired,
+            permissionBlocked: state.permissionBlocked,
+            toggleAudioDesired: () =>
+              dispatch({ id: "toggle", property: "audioDesired" }),
+            toggleVideoDesired: () =>
+              dispatch({ id: "toggle", property: "videoDesired" }),
+            handleRequestPermission: (shake) =>
+              dispatch({ id: "getUserMedia", shake }),
+            handleDeviceSelected: ({ detail }) => {
+              dispatch({
+                id: "selectDevice",
+                kind: detail.kind,
+                deviceId: detail.value,
+              });
+            },
+            handleDone: () => dispatch({ id: "done" }),
+          },
+        ];
+      },
+    };
+  }
 </script>
 
-<mirror>
-  {#if $localStream}
-    <VideoBox bind:this={videoBox} enabled={$mediaDesired.video}>
-      {#if !$mediaDesired.audio && !$mediaDesired.video}
-        <div class="message highlight">
-          {_("Join with cam and mic off", "join_cam_mic_off")}
-        </div>
-      {:else if !$mediaDesired.video}
-        <div class="message highlight">
-          {_("Join with cam off", "join_cam_off")}
-        </div>
-      {:else if !$mediaDesired.audio}
-        <div class="message highlight">
-          {_("Join with mic off", "join_mic_off")}
-        </div>
-      {:else}
-        <div />
-      {/if}
-      {#if showButtonBar}
-        <div class="button-bar">
-          <button
-            on:click={toggleVideoDesired}
-            class:track-disabled={!$mediaDesired.video}
-          >
-            <icon><VideoIcon enabled={$mediaDesired.video} /></icon>
-          </button>
-          <button
-            class="audio-level-button"
-            class:track-disabled={!$mediaDesired.audio}
-            on:click={toggleAudioDesired}
-          >
-            {#if $mediaDesired.audio}
-              <AudioLevelIndicator>
-                <icon class="audio-level-icon">
-                  <AudioIcon enabled={$mediaDesired.audio} />
-                </icon>
-              </AudioLevelIndicator>
-            {:else}
-              <icon class="audio-level-icon">
-                <AudioIcon enabled={$mediaDesired.audio} />
-              </icon>
-            {/if}
-          </button>
-          <button
-            class="corner"
-            class:inverted={advancedSettings}
-            on:click={toggleAdvancedSettings}
-          >
-            <icon><IconSettings /></icon>
-          </button>
-        </div>
-      {/if}
-    </VideoBox>
-
-    <ContinueButton on:click={handleDone}>
-      {_("Continue", "continue")}
-    </ContinueButton>
-
-    {#if advancedSettings}
-      <div class="advanced-settings">
-        <DeviceSelector on:changed={handleDeviceSelected} />
-      </div>
-    {/if}
-  {:else}
-    <VideoBox bind:this={videoBox} blocked={$permissionBlocked > 0} opaque={true}>
-      <div class="centered-image">
-        <icon style="--size:75px"><IconVideoDisabled /></icon>
-      </div>
-      <div class="message blocked">
-        {#if $permissionBlocked}
-          {_("Cam and mic are blocked", "cam_mic_blocked")}
-        {:else}
-          {_("Cam and mic are not active", "cam_mic_not_active")}
-        {/if}
-      </div>
-    </VideoBox>
-
-    {#if $permissionWouldBeGranted === false}
-      <ContinueButton on:click={requestPermission}>
-        {#if $permissionBlocked}
-          {_("Try Again", "try_again")}
-        {:else}
-          {_("Request Permissions", "request_perms")}
-        {/if}
-      </ContinueButton>
-    {:else}
-      <button-placeholder />
-    {/if}
-  {/if}
-</mirror>
-
-<style>
-  mirror {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 500px;
-  }
-  .centered-image {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-grow: 1;
-    margin-top: 15px;
-  }
-  .message {
-    color: #eee;
-    background-color: rgba(33, 33, 33, 0.5);
-    border-radius: 10px;
-    padding: 8px 15px;
-    margin: 8px;
-    text-align: center;
-
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-  }
-  .button-bar {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-  }
-  .button-bar button {
-    display: flex;
-
-    color: white;
-    background-color: rgba(33, 33, 33, 0.5);
-    border: none;
-    border-radius: 8px;
-    margin: 8px;
-
-    font-size: 18px;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    padding: 8px 15px;
-  }
-  .button-bar button.track-disabled {
-    background-color: rgba(255, 85, 85, 0.7);
-  }
-  .button-bar button:hover {
-    background-color: rgba(85, 85, 85, 0.7);
-  }
-  .button-bar button.track-disabled:hover {
-    background-color: rgba(255, 115, 115, 0.7);
-  }
-  .button-bar button.corner {
-    position: absolute;
-    right: 10px;
-  }
-
-  .audio-level-button {
-    padding: 0 !important;
-  }
-  .audio-level-icon {
-    margin: 8px 15px;
-  }
-
-  icon {
-    display: block;
-    width: var(--size, 32px);
-    height: var(--size, 32px);
-    color: white;
-  }
-
-  button.inverted {
-    background-color: #eee;
-  }
-  button.inverted:hover {
-    background-color: #fff;
-  }
-  button.inverted icon {
-    color: rgba(33, 33, 33, 0.5);
-  }
-
-  button-placeholder {
-    display: block;
-    height: 28px;
-    margin: 32px auto 8px auto;
-    padding: 12px 18px;
-  }
-</style>
+<ProgramView {createApp} />

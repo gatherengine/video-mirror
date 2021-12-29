@@ -1,30 +1,8 @@
-<script context="module" lang="ts">
-  export type State = {
-    screen: string;
-    videoDesired: boolean;
-    audioDesired: boolean;
-    videoDeviceId: string;
-    audioInputDeviceId: string;
-    audioOutputDeviceId: string;
-    videoConstraints: any;
-    audioConstraints: any;
-    permissionBlocked: boolean;
-    permissionWouldBeGranted: boolean;
-  };
-  export type Message = { id: "gum" } | { id: "test" };
-  export type Dispatch = (message: Message) => void;
-  export type Effect = (dispatch: Dispatch) => void;
-  export type Program = {
-    init: [State, Effect?];
-    update: (msg: Message, state: State) => State;
-    view: (state: State, dispatch: Dispatch) => void;
-  };
-</script>
-
 <!-- This component converts the functional UI state machine (raj) to Svelte -->
 <script lang="ts">
   import { onMount } from "svelte";
   import { runtime } from "raj";
+  import type { Program, State, Dispatch } from "./program";
 
   export let createApp;
 
@@ -33,11 +11,11 @@
   let programProps;
 
   onMount(() => {
-    const app = createApp($$props);
+    const app = createApp($$props) as Program;
     programView = app.view;
     return runtime({
       ...app,
-      view: (state, dispatch) => {
+      view: (state: State, dispatch: Dispatch) => {
         const result = programView(state, dispatch);
         programComponent = result[0];
         if (result[1]) {

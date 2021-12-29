@@ -16,7 +16,10 @@
 
   $: optionsWithDefault = options || [];
 
-  $: selectedOption = optionsWithDefault.find((opt) => opt.value === selected);
+  $: {
+    selectedOption = optionsWithDefault.find((opt) => opt.value === selected);
+    console.log("selectedOption", selectedOption);
+  }
 
   const togglePopup = () => (popupVisible = !popupVisible);
 
@@ -65,56 +68,83 @@
   });
 </script>
 
-<div
-  class="select"
-  tabindex="0"
-  on:keydown={handleKeypress}
-  on:blur={cancelPopup}
->
-  <div
-    bind:this={selectRowEl}
-    class="select-row"
-    class:open={popupVisible}
-    on:click={togglePopup}
-  >
-    {#if icon}
-      <div class="icon"><svelte:component this={icon} /></div>
-    {/if}
-    <div class="selected">{selectedOption ? selectedOption.label : ""}</div>
-    <div class="down-arrow" />
-  </div>
-  {#if popupVisible}
-    <div class="popup" on:mouseleave={() => (hoverIndex = null)}>
-      {#each optionsWithDefault as option, i}
-        <div
-          class="option"
-          class:hover={hoverIndex === i}
-          data-value={option.value}
-          on:click={() => makeSelection(option)}
-          on:mouseenter={() => (hoverIndex = i)}
-        >
-          {option.label}
-        </div>
-      {/each}
+<vm-select>
+  <!-- Invisible inline spacer that keeps inline position for popup to hover over -->
+  <div class="placeholder">
+    <div class="select-row ">
+      {#if icon}
+        <div class="icon"><svelte:component this={icon} /></div>
+      {/if}
+      <div class="selected">{selectedOption ? selectedOption.label : ""}</div>
+      <div class="down-arrow" />
     </div>
-  {/if}
-</div>
+  </div>
+
+  <div class="select" tabindex="0" on:keydown={handleKeypress}>
+    <div
+      bind:this={selectRowEl}
+      class="select-row"
+      class:open={popupVisible}
+      on:click={togglePopup}
+    >
+      {#if icon}
+        <div class="icon"><svelte:component this={icon} /></div>
+      {/if}
+      <div class="selected">{selectedOption ? selectedOption.label : ""}</div>
+      <div class="down-arrow" />
+    </div>
+    {#if popupVisible}
+      <div class="popup" on:mouseleave={() => (hoverIndex = null)}>
+        {#each optionsWithDefault as option, i}
+          <div
+            class="option"
+            class:checkmark-selected={selectedOption
+              ? selectedOption.value === option.value
+              : false}
+            class:hover={hoverIndex === i}
+            data-value={option.value}
+            on:click={() => makeSelection(option)}
+            on:mouseenter={() => (hoverIndex = i)}
+          >
+            {option.label}
+          </div>
+        {/each}
+      </div>
+    {/if}
+  </div>
+</vm-select>
 
 <style>
+  vm-select {
+    position: relative;
+    display: block;
+    padding: 4px;
+  }
+
+  .placeholder,
   .select {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+  }
+  .placeholder {
+    min-width: 375px;
+    color: transparent;
+    --select-fg-color: transparent;
+  }
+  .select {
+    position: absolute;
+    top: 0;
+
     min-width: 375px;
 
     border: 1px solid rgba(180, 180, 180, 1);
     border-radius: 8px;
-    margin: 8px;
 
     cursor: pointer;
-
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
   }
   .select:focus {
     outline: none;
     box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
+    z-index: 2;
   }
   .select-row {
     display: flex;
@@ -123,12 +153,8 @@
     justify-content: space-between;
     padding: 8px;
   }
-  .select-row.open {
-    box-shadow: 0px 0px 15px -5px rgba(0, 0, 0, 0.5);
-  }
-
   .option {
-    padding: 8px;
+    padding: 8px 8px 8px 24px;
   }
   .option.hover {
     background-color: var(
@@ -148,6 +174,18 @@
     flex-grow: 1;
   }
 
+  .checkmark-selected {
+    background-color: antiquewhite;
+    border-radius: 5px;
+  }
+  .checkmark-selected::before {
+    content: " \2714";
+    display: block;
+    position: absolute;
+    margin-left: -12px;
+    transform: translateX(-50%);
+  }
+
   .down-arrow {
     border: solid var(--select-fg-color, black);
     border-width: 0 2px 2px 0;
@@ -158,19 +196,13 @@
   }
 
   .popup {
-    position: absolute;
     display: flex;
     flex-direction: column;
 
     color: var(--select-fg-color, black);
     background-color: var(--select-bg-color, white);
-    border: 1px solid var(--select-border-color, rgba(180, 180, 180, 1));
-    border-radius: 8px;
-    margin-left: -1px;
     padding: 8px;
-
-    z-index: 1;
-
-    min-width: 360px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
   }
 </style>

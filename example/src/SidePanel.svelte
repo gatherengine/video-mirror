@@ -1,20 +1,14 @@
-<script>
+<script lang="ts">
   import {
-    gumRequestNumber,
     localStream,
-    mediaDesired,
     mediaDevices,
-    permissionBlocked,
-    permissionWouldBeGranted,
     selectedDeviceIds,
     localAudioTrack,
     localVideoTrack,
-    audioConstraints,
-    videoConstraints,
     localAudioLevel,
   } from "video-mirror";
 
-  let expanded = true;
+  let expanded = false;
 
   function toggleExpanded(event) {
     event.preventDefault();
@@ -28,35 +22,21 @@
     <div class="body">
       <dl>
         <div class="heading">General</div>
-        <dt>permissionBlocked</dt>
-        <dd>{$permissionBlocked}</dd>
-        <dt>permissionWouldBeGranted</dt>
-        <dd>{$permissionWouldBeGranted}</dd>
-        <dt>gumRequestNumber</dt>
-        <dd>{$gumRequestNumber}</dd>
         <dt>localStream?</dt>
         <dd>{$localStream !== null}</dd>
       </dl>
       <dl>
         <div class="heading">Audio</div>
-        <dt>desired?</dt>
-        <dd>{$mediaDesired.audio}</dd>
         <dt>track?</dt>
         <dd>{$localAudioTrack !== null}</dd>
         <dt>volume</dt>
         <dd>{($localAudioLevel || 0).toFixed(2)}</dd>
-        <dt>audioConstraints</dt>
-        <dd>{JSON.stringify($audioConstraints, null, 2)}</dd>
       </dl>
 
       <dl>
         <div class="heading">Video</div>
-        <dt>desired?</dt>
-        <dd>{$mediaDesired.video}</dd>
         <dt>track?</dt>
         <dd>{$localVideoTrack !== null}</dd>
-        <dt>videoConstraints</dt>
-        <dd>{JSON.stringify($videoConstraints, null, 2)}</dd>
       </dl>
 
       <dl>

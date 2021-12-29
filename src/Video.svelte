@@ -17,7 +17,6 @@
 
   afterUpdate(() => {
     if (track && attachedTrack !== track) {
-      console.log("afterUpdate attach track", videoElement);
       if (track.attach) {
         track.attach(videoElement);
       } else {

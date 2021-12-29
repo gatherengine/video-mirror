@@ -8,7 +8,8 @@
   };
 
   let isDone = false;
-  function done() {
+  function done({ detail }) {
+    console.log("DONE", detail);
     isDone = true;
   }
 </script>

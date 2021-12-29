@@ -1,24 +1,27 @@
 <script lang="ts">
-  import AudioIcon from "./AudioIcon.svelte";
+  import { slide, fade } from "svelte/transition";
+
   import AudioLevelIndicator from "./AudioLevelIndicator.svelte";
-  import VideoIcon from "./AudioIcon.svelte";
   import VideoBox from "./VideoBox.svelte";
   import ContinueButton from "./ContinueButton.svelte";
   import DeviceSelector from "./DeviceSelector";
 
+  import AudioIcon from "./AudioIcon.svelte";
+  import VideoIcon from "./VideoIcon.svelte";
+
   import IconSettings from "./icons/IconSettings.svelte";
   import IconVideoDisabled from "./icons/IconVideoDisabled.svelte";
 
-  export let localStream;
+  export let stream;
   export let videoDesired;
   export let audioDesired;
   export let permissionBlocked;
 
-  export let toggleAudioDesired
-  export let toggleVideoDesired
-  export let handleDeviceSelected
-  export let handleDone
-  export let handleRequestPermission
+  export let toggleAudioDesired;
+  export let toggleVideoDesired;
+  export let handleDeviceSelected;
+  export let handleRequestPermission;
+  export let handleDone;
 
   let videoBox = null;
   let advancedSettings = false;
@@ -30,8 +33,12 @@
 </script>
 
 <mirror>
-  {#if localStream}
-    <VideoBox bind:this={videoBox} enabled={videoDesired}>
+  {#if stream}
+    <VideoBox
+      bind:this={videoBox}
+      enabled={videoDesired}
+      track={stream.getVideoTracks()[0]}
+    >
       {#if !audioDesired && !videoDesired}
         <div class="message highlight">
           {_("Join with cam and mic off", "join_cam_mic_off")}
@@ -61,7 +68,7 @@
           on:click={toggleAudioDesired}
         >
           {#if audioDesired}
-            <AudioLevelIndicator>
+            <AudioLevelIndicator {stream}>
               <icon class="audio-level-icon">
                 <AudioIcon enabled={audioDesired} />
               </icon>
@@ -84,26 +91,24 @@
       </div>
     </VideoBox>
 
+    <div class="advanced-settings">
+      {#if advancedSettings}
+        <div transition:slide>
+          <DeviceSelector on:changed={handleDeviceSelected} />
+        </div>
+      {/if}
+    </div>
+
     <ContinueButton on:click={handleDone}>
       {_("Continue", "continue")}
     </ContinueButton>
-
-    {#if advancedSettings}
-      <div class="advanced-settings">
-        <DeviceSelector on:changed={handleDeviceSelected} />
-      </div>
-    {/if}
   {:else}
-    <VideoBox
-      bind:this={videoBox}
-      blocked={$permissionBlocked > 0}
-      opaque={true}
-    >
+    <VideoBox bind:this={videoBox} blocked={permissionBlocked} opaque={true}>
       <div class="centered-image">
         <icon style="--size:75px"><IconVideoDisabled /></icon>
       </div>
       <div class="message blocked">
-        {#if $permissionBlocked}
+        {#if permissionBlocked}
           {_("Cam and mic are blocked", "cam_mic_blocked")}
         {:else}
           {_("Cam and mic are not active", "cam_mic_not_active")}
@@ -111,17 +116,18 @@
       </div>
     </VideoBox>
 
-    <!-- {#if $permissionWouldBeGranted === false} -->
-      <ContinueButton on:click={handleRequestPermission}>
-        {#if $permissionBlocked}
+    <!-- Keep as spacer -->
+    <div class="advanced-settings" />
+
+    <div in:fade={{ duration: 800, delay: 200 }}>
+      <ContinueButton on:click={handleRequestPermission(videoBox.shake)}>
+        {#if permissionBlocked}
           {_("Try Again", "try_again")}
         {:else}
           {_("Use Cam & Mic", "request_perms")}
         {/if}
       </ContinueButton>
-    <!-- {:else}
-      <button-placeholder />
-    {/if} -->
+    </div>
   {/if}
 </mirror>
 
@@ -171,7 +177,7 @@
     background-color: rgba(255, 85, 85, 0.7);
   }
   .button-bar button:hover {
-    background-color: rgba(85, 85, 85, 0.7);
+    background-color: rgba(115, 115, 115, 0.7);
   }
   .button-bar button.track-disabled:hover {
     background-color: rgba(255, 115, 115, 0.7);
@@ -203,6 +209,11 @@
   }
   button.inverted icon {
     color: rgba(33, 33, 33, 0.5);
+  }
+
+  .advanced-settings {
+    margin-top: 12px;
+    margin-bottom: 12px;
   }
 
   button-placeholder {

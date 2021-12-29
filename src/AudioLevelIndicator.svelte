@@ -1,6 +1,17 @@
 <script lang="ts">
   import { spring } from "svelte/motion";
-  import { localAudioLevel } from "./stores/localAudioLevel";
+  import audioActivity from "audio-activity";
+  import { onDestroy } from "svelte";
+
+  export let stream;
+
+  let activity;
+  let audioLevel = 0;
+
+  $: if (stream && stream.getAudioTracks().length) {
+    if (activity) activity.destroy();
+    activity = audioActivity(stream, (value) => (audioLevel = value));
+  }
 
   // Animation springs
   let audioLevelSpring = spring(0, {
@@ -9,15 +20,20 @@
   });
 
   $: {
-    let x = $localAudioLevel;
-    let y = Math.log10(x + 1/10) + 1;
+    let x = audioLevel;
+    let y = Math.log10(x + 1 / 10) + 1;
     audioLevelSpring.set(y);
   }
+
+  onDestroy(() => {
+    if (activity) activity.destroy();
+  });
 </script>
 
 <indicator
   style="--audio-level:{((1 - $audioLevelSpring) * 100).toFixed(2) + '%'}"
-  class={$$props.class}>
+  class={$$props.class}
+>
   <slot />
 </indicator>
 

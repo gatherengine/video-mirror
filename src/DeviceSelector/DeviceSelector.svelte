@@ -5,7 +5,6 @@
   import Select from "./Select";
 
   import { mediaDevices, defaultDeviceIds, selectedDeviceIds } from "../stores";
-  import { requestPermission } from "../requestPermission";
 
   import {
     IconAudioEnabled,
@@ -26,7 +25,6 @@
   function handleSelect(option, kind) {
     if (option.value !== $selectedDeviceIds[kind]) {
       $selectedDeviceIds[kind] = option.value;
-      requestPermission();
       dispatch("changed", { kind, value: option.value });
     }
     dispatch("selected", { kind, value: option.value });
@@ -59,6 +57,7 @@
         handleSelect(option, kind);
       }}
       options={options[kind]}
-      icon={icons[kind]} />
+      icon={icons[kind]}
+    />
   {/if}
 {/each}
