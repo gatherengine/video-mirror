@@ -1,3 +1,8 @@
+## 2021-12-29 v4.1.0
+
+- Use default background color for select box rows
+- Replace selectedDeviceIds store with preferredDeviceIds component param
+
 ## 2021-12-29 v4.0.1
 
 - Add type information for State, Message, etc.
