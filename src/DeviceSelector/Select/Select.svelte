@@ -16,10 +16,7 @@
 
   $: optionsWithDefault = options || [];
 
-  $: {
-    selectedOption = optionsWithDefault.find((opt) => opt.value === selected);
-    console.log("selectedOption", selectedOption);
-  }
+  $: selectedOption = optionsWithDefault.find((opt) => opt.value === selected);
 
   const togglePopup = () => (popupVisible = !popupVisible);
 
@@ -175,7 +172,7 @@
   }
 
   .checkmark-selected {
-    background-color: antiquewhite;
+    background-color: var(--select-bg-color, rgba(230, 230, 230, 1));
     border-radius: 5px;
   }
   .checkmark-selected::before {
