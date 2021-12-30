@@ -1,3 +1,7 @@
+## 2021-12-20 v4.1.1
+
+- Fix that preferred device was not selected in dropdown
+
 ## 2021-12-29 v4.1.0
 
 - Use default background color for select box rows
