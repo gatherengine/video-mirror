@@ -54,7 +54,7 @@
 {#each Object.keys(icons) as kind}
   {#if options[kind] && options[kind].length > 0}
     <Select
-      selected={$defaultDeviceIds[kind]}
+      selected={preferredDeviceIds[kind] || $defaultDeviceIds[kind]}
       onSelect={(option) => {
         handleSelect(option, kind);
       }}
