@@ -9,6 +9,8 @@ export { default as AudioIcon } from "./AudioIcon.svelte";
 export { default as AudioLevelIndicator } from "./AudioLevelIndicator.svelte";
 export { attach } from "./mediaAttachment";
 
+export type { State, Message, Dispatch, Effect, Program } from "./program";
+
 // Export stores
 export * from "./stores";
 
