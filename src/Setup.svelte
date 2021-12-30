@@ -215,11 +215,4 @@
     margin-top: 12px;
     margin-bottom: 12px;
   }
-
-  button-placeholder {
-    display: block;
-    height: 28px;
-    margin: 32px auto 8px auto;
-    padding: 12px 18px;
-  }
 </style>
