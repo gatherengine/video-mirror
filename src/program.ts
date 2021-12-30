@@ -3,9 +3,7 @@ export type State = {
   stream?: MediaStream;
   videoDesired: boolean;
   audioDesired: boolean;
-  videoDeviceId: string;
-  audioInputDeviceId: string;
-  audioOutputDeviceId: string;
+  preferredDeviceIds: DeviceIds;
   videoConstraints: MediaTrackConstraints;
   audioConstraints: MediaTrackConstraints;
   permissionBlocked: boolean;
@@ -36,4 +34,10 @@ export type Program = {
   init: [State, Effect?];
   update: (msg: Message, state: State) => [State, Effect?];
   view: (state: State, dispatch: Dispatch) => void;
+};
+
+export type DeviceIds = {
+  videoinput: string;
+  audioinput: string;
+  audiooutput: string;
 };

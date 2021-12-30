@@ -4,13 +4,16 @@
   import groupBy from "./groupBy";
   import Select from "./Select";
 
-  import { mediaDevices, defaultDeviceIds, selectedDeviceIds } from "../stores";
+  import { mediaDevices, defaultDeviceIds } from "../stores";
+  import type { DeviceIds } from "../program";
 
   import {
     IconAudioEnabled,
     IconVideoEnabled,
     IconSoundSpeaker,
   } from "../icons";
+
+  export let preferredDeviceIds: DeviceIds;
 
   // DeviceSelector sends a 'selected' event when user selects anything
   const dispatch = createEventDispatcher();
@@ -23,8 +26,7 @@
   };
 
   function handleSelect(option, kind) {
-    if (option.value !== $selectedDeviceIds[kind]) {
-      $selectedDeviceIds[kind] = option.value;
+    if (option.value !== preferredDeviceIds[kind]) {
       dispatch("changed", { kind, value: option.value });
     }
     dispatch("selected", { kind, value: option.value });
@@ -49,7 +51,7 @@
   );
 </script>
 
-{#each kinds as kind}
+{#each Object.keys(icons) as kind}
   {#if options[kind] && options[kind].length > 0}
     <Select
       selected={$defaultDeviceIds[kind]}

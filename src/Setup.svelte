@@ -15,6 +15,7 @@
   export let stream;
   export let videoDesired;
   export let audioDesired;
+  export let preferredDeviceIds;
   export let permissionBlocked;
 
   export let toggleAudioDesired;
@@ -94,7 +95,10 @@
     <div class="advanced-settings">
       {#if advancedSettings}
         <div transition:slide>
-          <DeviceSelector on:changed={handleDeviceSelected} />
+          <DeviceSelector
+            on:changed={handleDeviceSelected}
+            {preferredDeviceIds}
+          />
         </div>
       {/if}
     </div>

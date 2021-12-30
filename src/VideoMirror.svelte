@@ -2,15 +2,19 @@
   import { createEventDispatcher } from "svelte";
   import ProgramView from "./ProgramView.svelte";
   import Setup from "./Setup.svelte";
-  import type { Program, Dispatch } from "./program";
+  import type { Program, Dispatch, DeviceIds, State } from "./program";
   import { getUserMedia } from "./commands/getUserMedia";
+  import { localStream } from "./stores/localStream";
+  import { get } from "svelte/store";
 
   export let videoDesired = true;
   export let audioDesired = true;
 
-  export let videoDeviceId = null;
-  export let audioInputDeviceId = null;
-  export let audioOutputDeviceId = null;
+  export let preferredDeviceIds: DeviceIds = {
+    audioinput: null,
+    audiooutput: null,
+    videoinput: null,
+  };
 
   export let videoConstraints: MediaTrackConstraints = {
     facingMode: "user",
@@ -36,24 +40,39 @@
     };
   }
 
+  function setConstraintsFromDeviceIds(state: State) {
+    if (state.preferredDeviceIds.audioinput) {
+      state.audioConstraints.deviceId = state.preferredDeviceIds.audioinput;
+    } else {
+      delete state.audioConstraints.deviceId;
+    }
+    if (state.preferredDeviceIds.videoinput) {
+      state.videoConstraints.deviceId = state.preferredDeviceIds.videoinput;
+    } else {
+      delete state.videoConstraints.deviceId;
+    }
+  }
+
   const storedGrantedKey = "video-mirror.granted";
 
   function createApp(props): Program {
     const permissionWouldBeGranted =
       localStorage.getItem(storedGrantedKey) === "true";
+    const initialState = {
+      stream: get(localStream),
+      videoDesired,
+      audioDesired,
+      preferredDeviceIds,
+      videoConstraints,
+      audioConstraints,
+      permissionBlocked: false,
+      permissionWouldBeGranted,
+    };
+    setConstraintsFromDeviceIds(initialState);
+
     return {
       init: [
-        {
-          videoDesired,
-          audioDesired,
-          videoDeviceId,
-          audioInputDeviceId,
-          audioOutputDeviceId,
-          videoConstraints,
-          audioConstraints,
-          permissionBlocked: false,
-          permissionWouldBeGranted,
-        },
+        initialState,
         permissionWouldBeGranted
           ? getUserMedia({ audio: audioConstraints, video: videoConstraints })
           : null,
@@ -85,18 +104,9 @@
           ];
         } else if (msg.id === "selectDevice") {
           const newState = { ...state };
-          if (msg.kind === "audioinput") {
-            newState.audioInputDeviceId = msg.deviceId;
-            newState.audioConstraints.deviceId = msg.deviceId;
-          } else if (msg.kind === "audiooutput") {
-            newState.audioOutputDeviceId = msg.deviceId;
-            // TODO: provide a way to test audio output device
-          } else if (msg.kind === "videoinput") {
-            newState.videoDeviceId = msg.deviceId;
-            newState.videoConstraints.deviceId = msg.deviceId;
-          } else {
-            throw new Error(`unknown device kind: ${msg.kind}`);
-          }
+          newState.preferredDeviceIds[msg.kind] = msg.deviceId;
+          setConstraintsFromDeviceIds(newState);
+
           return [
             newState,
             getUserMedia({
@@ -108,6 +118,7 @@
           return [{ ...state, [msg.property]: !state[msg.property] }];
         } else if (msg.id === "done") {
           dispatchSvelte("done", state);
+          $localStream = state.stream;
           return [state];
         } else {
           return [state];
@@ -120,6 +131,7 @@
             stream: state.stream,
             audioDesired: state.audioDesired,
             videoDesired: state.videoDesired,
+            preferredDeviceIds: state.preferredDeviceIds,
             permissionBlocked: state.permissionBlocked,
             toggleAudioDesired: () =>
               dispatch({ id: "toggle", property: "audioDesired" }),

@@ -10,7 +10,7 @@ let previousStream;
  * @returns MediaStream?
  */
 export const getUserMedia =
-  ({ audio = true, video = true }: MediaStreamConstraints = {}) =>
+  ({ audio, video }: MediaStreamConstraints) =>
   async (dispatch: Dispatch) => {
     try {
       // For Firefox, we need to disable the previously selected Mic, else
