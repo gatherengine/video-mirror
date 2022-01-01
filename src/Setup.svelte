@@ -31,6 +31,9 @@
 
   // i18n translations available, if passed in
   const _ = (phrase, key) => tr[key] || tr[phrase] || phrase;
+
+  // Ignore missing props warning
+  $$props;
 </script>
 
 <mirror>

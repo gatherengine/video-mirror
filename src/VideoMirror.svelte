@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onDestroy } from "svelte";
   import ProgramView from "./ProgramView.svelte";
   import Setup from "./Setup.svelte";
-  import type { Program, Dispatch, DeviceIds, State } from "./program";
+  import type { Program, Dispatch, DeviceIds, State, Effect } from "./program";
   import { getUserMedia } from "./commands/getUserMedia";
   import { localStream } from "./stores/localStream";
   import { get } from "svelte/store";
@@ -29,6 +29,19 @@
   };
 
   const dispatchSvelte = createEventDispatcher();
+
+  let streamToClose: MediaStream;
+
+  function closeMedia() {
+    if (streamToClose) {
+      // console.log("VideoMirror#closeMedia: stopping tracks");
+      streamToClose.getTracks().forEach((t) => t.stop());
+    } else {
+      // console.log("VideoMirror#closeMedia: noop");
+    }
+  }
+
+  onDestroy(closeMedia);
 
   // Create a single effect from a list of effects
   function batch(commands) {
@@ -58,6 +71,15 @@
   function createApp(props): Program {
     const permissionWouldBeGranted =
       localStorage.getItem(storedGrantedKey) === "true";
+
+    const initialEffects: Effect[] = [];
+
+    if (permissionWouldBeGranted) {
+      initialEffects.push(
+        getUserMedia({ audio: audioConstraints, video: videoConstraints })
+      );
+    }
+
     const initialState = {
       stream: get(localStream),
       videoDesired,
@@ -71,12 +93,7 @@
     setConstraintsFromDeviceIds(initialState);
 
     return {
-      init: [
-        initialState,
-        permissionWouldBeGranted
-          ? getUserMedia({ audio: audioConstraints, video: videoConstraints })
-          : null,
-      ],
+      init: [initialState, batch(initialEffects)],
       update(msg, state) {
         if (msg.id === "getUserMedia") {
           return [
@@ -84,6 +101,10 @@
             getUserMedia({ audio: audioConstraints, video: videoConstraints }),
           ];
         } else if (msg.id === "gotUserMedia") {
+          // We need to remember this stream to close it, in case of failure
+          // a desire for no audio/video
+          streamToClose = msg.stream;
+
           return [
             { ...state, stream: msg.stream, permissionBlocked: false },
             (dispatch) => {
@@ -117,8 +138,17 @@
         } else if (msg.id === "toggle") {
           return [{ ...state, [msg.property]: !state[msg.property] }];
         } else if (msg.id === "done") {
+          if (state.audioDesired || state.videoDesired) {
+            streamToClose = null;
+
+            // Finally, we've succeeded, so pass the stream on as a global svelte store
+            $localStream = state.stream;
+          } else {
+            state.stream = null;
+          }
+
+          // Let parent component know we're done
           dispatchSvelte("done", state);
-          $localStream = state.stream;
           return [state];
         } else {
           return [state];
