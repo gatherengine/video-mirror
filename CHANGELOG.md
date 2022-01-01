@@ -1,3 +1,7 @@
+## 2022-01-01 v4.2.0
+
+- Turn off mic/cam if nothing is used
+
 ## 2021-12-20 v4.1.1
 
 - Fix that preferred device was not selected in dropdown
