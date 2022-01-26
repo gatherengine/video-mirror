@@ -1,3 +1,7 @@
+## 2022-01-26 v4.2.1
+
+- Pass `tr` translation object through from VideoMirror to internal Setup component
+
 ## 2022-01-01 v4.2.0
 
 - Turn off mic/cam if nothing is used
