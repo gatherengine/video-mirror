@@ -1,3 +1,7 @@
+## 2022-01-26 v4.3.0
+
+- Add 'autoFocus' property which puts focus on Use Cam & Mic / Continue button
+
 ## 2022-01-26 v4.2.1
 
 - Pass `tr` translation object through from VideoMirror to internal Setup component
