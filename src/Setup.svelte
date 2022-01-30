@@ -23,6 +23,7 @@
   export let handleDeviceSelected;
   export let handleRequestPermission;
   export let handleDone;
+  export let autoFocus;
 
   let videoBox = null;
   let advancedSettings = false;
@@ -106,7 +107,7 @@
       {/if}
     </div>
 
-    <ContinueButton on:click={handleDone}>
+    <ContinueButton on:click={handleDone} {autoFocus}>
       {_("Continue", "continue")}
     </ContinueButton>
   {:else}
@@ -127,7 +128,10 @@
     <div class="advanced-settings" />
 
     <div in:fade={{ duration: 800, delay: 200 }}>
-      <ContinueButton on:click={handleRequestPermission(videoBox.shake)}>
+      <ContinueButton
+        on:click={handleRequestPermission(videoBox.shake)}
+        {autoFocus}
+      >
         {#if permissionBlocked}
           {_("Try Again", "try_again")}
         {:else}

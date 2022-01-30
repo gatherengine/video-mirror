@@ -1,12 +1,21 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, afterUpdate } from "svelte";
 
   export let enabled = true;
+  export let autoFocus = false;
 
   let dispatch = createEventDispatcher();
+  let buttonEl;
+
+  afterUpdate(() => {
+    if (autoFocus && buttonEl) {
+      buttonEl.focus();
+    }
+  });
 </script>
 
 <button
+  bind:this={buttonEl}
   class="continue"
   class:disabled={!enabled}
   on:click={() => {
