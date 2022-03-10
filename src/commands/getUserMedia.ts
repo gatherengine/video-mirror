@@ -28,6 +28,7 @@ export const getUserMedia =
       previousStream = stream;
       dispatch({ id: "gotUserMedia", stream });
     } catch (err) {
+      console.warn("getUserMedia", err, { audio, video });
       if (err.name === "NotAllowedError") {
         dispatch({ id: "userMediaBlocked" });
       } else if (audio && video) {
