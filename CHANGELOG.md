@@ -1,3 +1,7 @@
+## 2022-03-10 v4.3.1
+
+- Show console warning when unable to getUserMedia
+
 ## 2022-01-26 v4.3.0
 
 - Add 'autoFocus' property which puts focus on Use Cam & Mic / Continue button
