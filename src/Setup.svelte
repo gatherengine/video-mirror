@@ -44,7 +44,20 @@
       enabled={videoDesired}
       track={stream.getVideoTracks()[0]}
     >
-      {#if !audioDesired && !videoDesired}
+      {#if stream.getVideoTracks().length === 0}
+        {#if !audioDesired}
+          <div class="message highlight">
+            {_("Join with mic off", "join_mic_off")}
+          </div>
+        {:else}
+          <div class="message highlight">
+            {_("Join with mic on", "join_mic_off")}
+          </div>
+        {/if}
+        <div class="message highlight" style="background-color: transparent">
+          {_("(Camera unavailable)", "cam_unavailable")}
+        </div>
+      {:else if !audioDesired && !videoDesired}
         <div class="message highlight">
           {_("Join with cam and mic off", "join_cam_mic_off")}
         </div>

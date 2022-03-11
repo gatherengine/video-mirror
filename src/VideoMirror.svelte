@@ -149,6 +149,9 @@
             state.stream = null;
           }
 
+          if (state.stream.getVideoTracks().length === 0)
+            state.videoDesired = false;
+
           // Let parent component know we're done
           dispatchSvelte("done", state);
           return [state];
@@ -164,7 +167,9 @@
             autoFocus,
             stream: state.stream,
             audioDesired: state.audioDesired,
-            videoDesired: state.videoDesired,
+            videoDesired:
+              state.videoDesired &&
+              (!state.stream || state.stream.getVideoTracks().length > 0),
             preferredDeviceIds: state.preferredDeviceIds,
             permissionBlocked: state.permissionBlocked,
             toggleAudioDesired: () =>

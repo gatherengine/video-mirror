@@ -28,12 +28,12 @@ export const getUserMedia =
       previousStream = stream;
       dispatch({ id: "gotUserMedia", stream });
     } catch (err) {
-      console.warn("getUserMedia", err, { audio, video });
+      console.warn("getUserMedia error", err, { audio, video });
       if (err.name === "NotAllowedError") {
         dispatch({ id: "userMediaBlocked" });
       } else if (audio && video) {
         // Try getting just audio--maybe they don't have a camera?
-        return await getUserMedia({ audio, video: false });
+        return await getUserMedia({ audio, video: false })(dispatch);
       } else {
         dispatch({ id: "userMediaBlocked" });
       }
