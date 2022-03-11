@@ -1,3 +1,7 @@
+## 2022-03-11 v4.4.1
+
+- Remove redundant 'Join with mic on' message
+
 ## 2022-03-10 v4.4.0
 
 - Fall back to mic if video hardware not available

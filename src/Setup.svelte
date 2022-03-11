@@ -50,9 +50,7 @@
             {_("Join with mic off", "join_mic_off")}
           </div>
         {:else}
-          <div class="message highlight">
-            {_("Join with mic on", "join_mic_off")}
-          </div>
+          <div />
         {/if}
         <div class="message highlight" style="background-color: transparent">
           {_("(Camera unavailable)", "cam_unavailable")}
