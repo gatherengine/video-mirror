@@ -1,3 +1,7 @@
+## 2022-03-10 v4.4.0
+
+- Fall back to mic if video hardware not available
+
 ## 2022-03-10 v4.3.1
 
 - Show console warning when unable to getUserMedia
