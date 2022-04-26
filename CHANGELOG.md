@@ -1,3 +1,8 @@
+## 2022-04-26 v4.5.0
+
+- Switch to pnpm package manager
+- Default autoGainControl to true
+
 ## 2022-03-11 v4.4.1
 
 - Remove redundant 'Join with mic on' message
