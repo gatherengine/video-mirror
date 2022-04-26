@@ -22,7 +22,7 @@
     facingMode: "user",
   };
   export let audioConstraints: MediaTrackConstraints = {
-    autoGainControl: false,
+    autoGainControl: true,
     echoCancellation: true,
     noiseSuppression: true,
     channelCount: 2,
