@@ -1,3 +1,7 @@
+## 2022-05-20 v4.5.2
+
+- Fix packaging deps issue
+
 ## 2022-05-20 v4.5.1
 
 - Add logging to getUserMedia request
