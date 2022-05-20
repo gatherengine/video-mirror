@@ -1,3 +1,7 @@
+## 2022-05-20 v4.5.1
+
+- Add logging to getUserMedia request
+
 ## 2022-04-26 v4.5.0
 
 - Switch to pnpm package manager
