@@ -24,8 +24,10 @@ export const getUserMedia =
     }
 
     try {
+      console.log("Getting User Media...", { audio, video });
       const stream = await MediaDevices.getUserMedia({ audio, video });
       previousStream = stream;
+      console.log("Got User Media", stream);
       dispatch({ id: "gotUserMedia", stream });
     } catch (err) {
       console.warn("getUserMedia error", err, { audio, video });
