@@ -149,8 +149,9 @@
             state.stream = null;
           }
 
-          if (state.stream.getVideoTracks().length === 0)
+          if (state.stream?.getVideoTracks().length === 0) {
             state.videoDesired = false;
+          }
 
           // Let parent component know we're done
           dispatchSvelte("done", state);
