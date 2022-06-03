@@ -1,3 +1,7 @@
+## 2022-06-02 v4.5.3
+
+- Fix null stream issue causing Continue button to fail
+
 ## 2022-05-20 v4.5.2
 
 - Fix packaging deps issue
