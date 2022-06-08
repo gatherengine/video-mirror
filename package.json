@@ -1,6 +1,6 @@
 {
   "name": "video-mirror",
-  "version": "4.5.3",
+  "version": "4.6.0",
   "svelte": "dist/index.js",
   "module": "dist/index.mjs",
   "main": "dist/index.umd.js",

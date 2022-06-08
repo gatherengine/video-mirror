@@ -1,3 +1,7 @@
+## 2022-06-07 v4.6.0
+
+- Add 'contain' option to Video component (defaults to 'cover')
+
 ## 2022-06-02 v4.5.3
 
 - Fix null stream issue causing Continue button to fail
