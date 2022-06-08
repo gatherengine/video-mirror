@@ -3,9 +3,9 @@
   import { attach } from "./mediaAttachment";
 
   export let track;
-  export let fullscreen = false;
-  // iOS needs this so the video doesn't automatically play full screen
   export let mirror = false;
+  export let contain = false;
+  export let fullscreen = false;
   export let muted = true;
   export let round = false;
   export let visible = false;
@@ -33,6 +33,7 @@
   bind:this={videoElement}
   class={$$props.class}
   class:mirror
+  class:contain
   class:fullscreen
   class:round
   class:initiallyVisible={visible}
@@ -47,6 +48,9 @@
     width: 100%;
     height: 100%;
     opacity: 0;
+  }
+  video.contain {
+    object-fit: contain;
   }
 
   .initiallyVisible {
