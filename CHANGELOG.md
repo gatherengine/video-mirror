@@ -1,3 +1,8 @@
+## 2022-09-29 v4.6.1
+
+- Add `logEnabled` check to each console.log
+  - enable with `localStorage.setItem('debug', 'video-mirror')`
+
 ## 2022-06-07 v4.6.0
 
 - Add 'contain' option to Video component (defaults to 'cover')
