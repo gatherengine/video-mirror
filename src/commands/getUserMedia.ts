@@ -1,5 +1,8 @@
-import MediaDevices from "media-devices";
 import type { Dispatch } from "../program";
+
+import MediaDevices from "media-devices";
+
+import { logEnabled } from "../logEnabled";
 
 let previousStream;
 
@@ -24,10 +27,13 @@ export const getUserMedia =
     }
 
     try {
-      console.log("Getting User Media...", { audio, video });
+      if (logEnabled) console.log("Getting User Media...", { audio, video });
+
       const stream = await MediaDevices.getUserMedia({ audio, video });
       previousStream = stream;
-      console.log("Got User Media", stream);
+
+      if (logEnabled) console.log("Got User Media", stream);
+
       dispatch({ id: "gotUserMedia", stream });
     } catch (err) {
       console.warn("getUserMedia error", err, { audio, video });

@@ -6,6 +6,7 @@
   import { getUserMedia } from "./commands/getUserMedia";
   import { localStream } from "./stores/localStream";
   import { get } from "svelte/store";
+  import { logEnabled } from "./logEnabled";
 
   export let videoDesired = true;
   export let audioDesired = true;
@@ -32,14 +33,18 @@
 
   const dispatchSvelte = createEventDispatcher();
 
+  $: if (logEnabled)
+    console.log("VideoMirror preferredDeviceIds", preferredDeviceIds);
+
   let streamToClose: MediaStream;
 
   function closeMedia() {
     if (streamToClose) {
-      // console.log("VideoMirror#closeMedia: stopping tracks");
+      if (logEnabled) console.log("VideoMirror#closeMedia: stopping tracks");
+
       streamToClose.getTracks().forEach((t) => t.stop());
     } else {
-      // console.log("VideoMirror#closeMedia: noop");
+      if (logEnabled) console.log("VideoMirror#closeMedia: noop");
     }
   }
 
@@ -65,6 +70,13 @@
       state.videoConstraints.deviceId = state.preferredDeviceIds.videoinput;
     } else {
       delete state.videoConstraints.deviceId;
+    }
+    if (logEnabled) {
+      console.log(
+        "VideoMirror setConstraintsFromDeviceIds",
+        state.audioConstraints.deviceId,
+        state.videoConstraints.deviceId
+      );
     }
   }
 

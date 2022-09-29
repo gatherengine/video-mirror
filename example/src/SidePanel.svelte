@@ -2,7 +2,6 @@
   import {
     localStream,
     mediaDevices,
-    selectedDeviceIds,
     localAudioTrack,
     localVideoTrack,
     localAudioLevel,
@@ -42,7 +41,8 @@
       <dl>
         <div class="heading">Details</div>
         <dt>selectedDeviceIds</dt>
-        <dd>{JSON.stringify($selectedDeviceIds, null, 2)}</dd>
+        <!-- <dd>{JSON.stringify($selectedDeviceIds, null, 2)}</dd> -->
+        <dd />
         <dt>mediaDevices</dt>
         <dd>{JSON.stringify($mediaDevices, null, 2)}</dd>
       </dl>

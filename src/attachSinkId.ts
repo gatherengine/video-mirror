@@ -1,5 +1,7 @@
 // TODO: audio output test
 
+import { logEnabled } from "./logEnabled";
+
 // see view-source:https://webrtc.github.io/samples/src/content/devices/multi/js/main.js
 
 // see also https://w3c.github.io/mediacapture-output/#dom-mediadevices-selectaudiooutput
@@ -10,9 +12,11 @@ export function attachSinkId(element, sinkId, outputSelector) {
     element
       .setSinkId(sinkId)
       .then(() => {
-        console.log(
-          `Success, audio output device attached: ${sinkId} to element with ${element.title} as source.`
-        );
+        if (logEnabled) {
+          console.log(
+            `Success, audio output device attached: ${sinkId} to element with ${element.title} as source.`
+          );
+        }
       })
       .catch((error) => {
         let errorMessage = error;
